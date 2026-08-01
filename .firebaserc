@@ -1,0 +1,12 @@
+{
+  "projects": {
+    "default": "arsenal-atlas"
+  },
+  "targets": {
+    "arsenal-atlas": {
+      "hosting": {
+        "app": ["arsenalatlas"]
+      }
+    }
+  }
+}

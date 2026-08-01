@@ -1,0 +1,38 @@
+node_modules
+dist
+dist-ssr
+*.local
+.env
+.env.local
+.env.*.local
+
+# Firebase
+.firebase
+.emulator-data
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+*-debug.log
+
+# Seed pipeline cache — regenerable, and large.
+.cache/
+
+# Intermediate corpus. `public/data/**` is the committed, served copy; this is
+# the same content in one 6 MB blob, consumed only by `npm run push`.
+# Regenerate with `npm run seed` (~4s warm, ~80s cold).
+/data/
+
+# Audit output
+.lh-*.json
+
+# Editor / OS
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+Thumbs.db
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

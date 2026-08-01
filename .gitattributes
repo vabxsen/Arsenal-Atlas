@@ -1,0 +1,20 @@
+# Normalise line endings in the repository to LF.
+# Without this, a repo authored on Windows shows every file as modified when
+# checked out on macOS or Linux, and vice versa.
+* text=auto eol=lf
+
+# Binary assets must never be line-ending converted.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.avif binary
+*.ico binary
+*.woff binary
+*.woff2 binary
+
+# Generated corpus — collapse it in diffs and exclude it from language stats,
+# so the repo reads as TypeScript rather than as a pile of JSON.
+public/data/** linguist-generated=true
+public/search-index.json linguist-generated=true
+package-lock.json linguist-generated=true
