@@ -284,6 +284,10 @@ async function main(): Promise<void> {
     `# Interactive views hold no indexable content of their own.\n` +
     `Disallow: /compare?\n` +
     `Disallow: /saved\n\n` +
+    `# Admin is gated on the admin custom claim; this only keeps it out of\n` +
+    `# the index. The route also emits noindex at runtime, because it has no\n` +
+    `# prerendered shell for a crawler to read the directive from.\n` +
+    `Disallow: /admin\n\n` +
     `Sitemap: ${SITE}/sitemap.xml\n`;
   await writeFile(join(DIST, 'robots.txt'), robots, 'utf8');
 
