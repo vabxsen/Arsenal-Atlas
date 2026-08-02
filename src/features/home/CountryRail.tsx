@@ -23,7 +23,7 @@ export function CountryRail({ entries }: { entries: ListingEntry[] }) {
   const max = top[0]?.count ?? 1;
 
   return (
-    <Container className="mt-32">
+    <Container className="mt-section">
       <Reveal>
         <SectionHeading
           overline="Country Explorer"

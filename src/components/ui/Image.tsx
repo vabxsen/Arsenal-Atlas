@@ -1,4 +1,4 @@
-import { useState, type CSSProperties } from 'react';
+import { useCallback, useState, type CSSProperties } from 'react';
 import { cn } from '@/lib/cn';
 import { wikimediaSrcSet } from '@shared/images';
 
@@ -18,6 +18,15 @@ interface SmartImageProps {
    * upscale — see the note in shared/images.ts.
    */
   intrinsicWidth?: number | undefined;
+  /**
+   * How the image sits in its box when `fill` is set.
+   *
+   * `contain` exists for subjects whose aspect ratio is nowhere near the
+   * frame's. Cropping a 4.55:1 side-on rifle photograph to a 16:9 hero shows
+   * the receiver and throws away the muzzle and the stock — see
+   * `heroFit` in shared/images.ts.
+   */
+  fit?: 'cover' | 'contain';
 }
 
 /**
@@ -40,9 +49,27 @@ export function SmartImage({
   sizes = '100vw',
   fill = false,
   intrinsicWidth,
+  fit = 'cover',
 }: SmartImageProps) {
   const [loaded, setLoaded] = useState(false);
   const [failed, setFailed] = useState(false);
+
+  /**
+   * An image the browser already has decoded must not fade in again.
+   *
+   * `onLoad` does not fire for an image that completed before React attached
+   * its handler, which is exactly the case on an equipment route: the head
+   * preloads the hero and `scripts/prerender.ts` paints it as static markup,
+   * so by the time React mounts the bytes are in cache. Without this the hero
+   * would be visible, blink to transparent as React took over, and fade back
+   * in over 700ms — slower-feeling than before the prerender existed.
+   *
+   * Ref callbacks run in the commit phase, so the resulting state update is
+   * flushed before the browser paints and no transparent frame is shown.
+   */
+  const measureRef = useCallback((node: HTMLImageElement | null) => {
+    if (node?.complete && node.naturalWidth > 0) setLoaded(true);
+  }, []);
 
   const srcSet = wikimediaSrcSet(src, intrinsicWidth ?? width);
 
@@ -65,6 +92,7 @@ export function SmartImage({
 
   return (
     <img
+      ref={measureRef}
       src={src}
       {...(srcSet ? { srcSet, sizes } : {})}
       alt={alt}
@@ -81,7 +109,8 @@ export function SmartImage({
       className={cn(
         'transition-opacity duration-700 ease-(--ease-out-expo)',
         loaded ? 'opacity-100' : 'opacity-0',
-        fill && 'absolute inset-0 h-full w-full object-cover',
+        fill && 'absolute inset-0 h-full w-full',
+        fill && (fit === 'contain' ? 'object-contain' : 'object-cover'),
         className
       )}
     />

@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { CATEGORIES } from '../shared/taxonomy.ts';
-import { sizedImage, wikimediaSrcSet } from '../shared/images.ts';
+import { HERO_MAX_WIDTH, sizedImage, wikimediaSrcSet } from '../shared/images.ts';
 import { normalizeOrigin } from '../shared/site.ts';
 import type { Equipment } from '../shared/schema.ts';
 
@@ -20,9 +20,6 @@ import type { Equipment } from '../shared/schema.ts';
  * LCP element — that preload is worth more to perceived speed than
  * prerendering the markup would be.
  */
-
-/** Kept in step with HERO_MAX_WIDTH in the detail page component. */
-const HERO_MAX_WIDTH = 1280;
 
 const DIST = join(process.cwd(), 'dist');
 const DATA = join(process.cwd(), 'data');
@@ -156,7 +153,7 @@ async function main(): Promise<void> {
     title: "Arsenal Atlas — Explore the World's Military Arsenal",
     description:
       `A premium encyclopedia of the world's military equipment. Specifications, history, ` +
-      `variants, and imagery for ${entries.length} entries across 43 categories.`,
+      `variants, and imagery for ${entries.length} entries across ${CATEGORIES.length} categories.`,
     jsonLd: [
       {
         '@context': 'https://schema.org',

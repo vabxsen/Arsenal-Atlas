@@ -32,7 +32,7 @@ export function FamilyTree({ family, currentSlug }: { family: Family; currentSlu
   if (generations.length === 0) return null;
 
   return (
-    <Container className="mt-24">
+    <Container className="mt-section">
       <Reveal>
         <SectionHeading overline="Lineage" title={family.name} />
         <p className="mt-4 max-w-[62ch] text-body text-fg-secondary">{family.description}</p>

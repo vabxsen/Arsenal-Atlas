@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react';
 import type { User } from 'firebase/auth';
 import { getFirebaseAuth, isFirebaseConfigured } from '@/lib/firebase';
 import { AuthContext, type AuthState } from './AuthContext';
@@ -18,6 +18,31 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(available);
   const [error, setError] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [claimsLoading, setClaimsLoading] = useState(false);
+
+  /**
+   * Reads the `admin` custom claim off the ID token. `force` re-mints the
+   * token, which is the only way a claim granted after sign-in becomes
+   * visible without waiting out the token's hour-long lifetime.
+   */
+  const readClaims = useCallback(async (current: User | null, force = false) => {
+    if (!current) {
+      setIsAdmin(false);
+      setClaimsLoading(false);
+      return;
+    }
+    setClaimsLoading(true);
+    try {
+      const token = await current.getIdTokenResult(force);
+      setIsAdmin(token.claims.admin === true);
+    } catch {
+      // A token we cannot read is not a token that grants anything.
+      setIsAdmin(false);
+    } finally {
+      setClaimsLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (!available) return;
@@ -38,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             if (cancelled) return;
             setUser(next);
             setLoading(false);
+            void readClaims(next);
           },
           () => !cancelled && setLoading(false)
         );
@@ -52,7 +78,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       cancelled = true;
       unsubscribe?.();
     };
-  }, [available]);
+  }, [available, readClaims]);
 
   const value = useMemo<AuthState>(
     () => ({
@@ -60,6 +86,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       loading,
       available,
       error,
+      isAdmin,
+      claimsLoading,
+      refreshClaims: () => readClaims(user, true),
       signIn: async () => {
         setError(null);
         try {
@@ -89,7 +118,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         }
       },
     }),
-    [user, loading, available, error]
+    [user, loading, available, error, isAdmin, claimsLoading, readClaims]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Reveal, RevealGroup, RevealItem } from '@/components/motion/Reveal';
 import { Container, SectionHeading, Skeleton } from '@/components/ui/primitives';
 import { useListing } from '@/lib/data';
-import { sizedImage } from '@shared/images';
+import { sizedImage, wikimediaSrcSet } from '@shared/images';
 import { useDocumentMeta } from '@/lib/seo';
 import { groupedCategories } from '@shared/taxonomy';
 
@@ -17,10 +17,11 @@ export default function BrowsePage() {
   });
 
   const counts = new Map<string, number>();
-  const covers = new Map<string, string>();
+  const covers = new Map<string, { url: string; width?: number | undefined }>();
   for (const entry of entries ?? []) {
     counts.set(entry.category, (counts.get(entry.category) ?? 0) + 1);
-    if (entry.hero && !covers.has(entry.category)) covers.set(entry.category, entry.hero);
+    if (entry.hero && !covers.has(entry.category))
+      covers.set(entry.category, { url: entry.hero, width: entry.heroWidth });
   }
 
   return (
@@ -44,7 +45,7 @@ export default function BrowsePage() {
         </Container>
       ) : (
         groupedCategories().map(({ group, categories }) => (
-          <Container key={group} className="mt-20">
+          <Container key={group} className="mt-section">
             <Reveal>
               <SectionHeading title={group} />
             </Reveal>
@@ -64,7 +65,9 @@ export default function BrowsePage() {
                     >
                       {cover ? (
                         <img
-                          src={sizedImage(cover, 500)}
+                          src={sizedImage(cover.url, 960, cover.width)}
+                          srcSet={wikimediaSrcSet(cover.url, cover.width)}
+                          sizes="(min-width: 1024px) 27rem, (min-width: 640px) 45vw, 90vw"
                           alt=""
                           aria-hidden="true"
                           loading="lazy"

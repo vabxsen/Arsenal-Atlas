@@ -15,6 +15,9 @@
     "seed": "tsx scripts/seed/index.ts",
     "push": "tsx scripts/seed/push.ts",
     "a11y": "tsx scripts/a11y.ts",
+    "test:derive": "tsx scripts/lib/derive.test.ts",
+    "test:rules": "tsx scripts/lib/rules.test.ts",
+    "verify:bundle": "tsx scripts/verifyBundle.ts",
     "verify:images": "tsx scripts/verifyOgImages.ts",
     "emulators": "firebase emulators:start --import=./.emulator-data --export-on-exit=./.emulator-data"
   },

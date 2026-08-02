@@ -25,6 +25,11 @@ const ROUTES = [
   '/countries/USA',
   '/timeline',
   '/saved',
+  // Only the guard is reachable here: the audit runs against a build with no
+  // credentials, so /admin renders its "not configured" notice. The screens
+  // behind the admin claim cannot be driven headlessly without minting a
+  // custom token, and are not covered.
+  '/admin',
   '/does-not-exist',
 ];
 

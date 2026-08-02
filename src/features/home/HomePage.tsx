@@ -13,7 +13,7 @@ import {
   useListing,
   type ListingEntry,
 } from '@/lib/data';
-import { sizedImage } from '@shared/images';
+import { sizedImage, wikimediaSrcSet } from '@shared/images';
 import { heroReveal } from '@/lib/motion';
 import { paletteStore } from '@/features/search/store';
 import { groupedCategories } from '@shared/taxonomy';
@@ -85,8 +85,19 @@ function Hero({ entries }: { entries: ListingEntry[] | undefined }) {
   const contentY = useTransform(scrollYProgress, [0, 1], ['0%', '40%']);
   const contentOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
 
-  // The most prominent entry with a wide hero makes the best backdrop.
-  const backdrop = entries?.find((entry) => entry.hero && (entry.heroWidth ?? 0) > 1600);
+  // Curated rather than incidental. This used to take the first entry over
+  // 1600px wide, which is whatever happened to sort first — a cut-out or a
+  // portrait could land here and read as a mistake. Require a featured entry
+  // with a genuinely landscape frame, and fall back progressively.
+  const backdrop =
+    entries?.find(
+      (entry) =>
+        entry.featured &&
+        entry.hero &&
+        (entry.heroWidth ?? 0) >= 1920 &&
+        (entry.heroWidth ?? 0) / (entry.heroHeight ?? 1) >= 1.4 &&
+        (entry.heroWidth ?? 0) / (entry.heroHeight ?? 1) <= 2.1
+    ) ?? entries?.find((entry) => entry.hero && (entry.heroWidth ?? 0) > 1600);
 
   // `isolate` creates the stacking context so the layers below order with
   // plain positive z-index — negative z-index escapes to the page root and is
@@ -103,6 +114,11 @@ function Hero({ entries }: { entries: ListingEntry[] | undefined }) {
         {backdrop?.hero ? (
           <img
             src={sizedImage(backdrop.hero, 1920, backdrop.heroWidth)}
+            // Without a srcset a phone downloaded the same 1920 rendition as a
+            // desktop — the largest single image on the site, for a screen that
+            // cannot show a third of it.
+            srcSet={wikimediaSrcSet(backdrop.hero, backdrop.heroWidth)}
+            sizes="100vw"
             alt=""
             aria-hidden="true"
             fetchPriority="high"
@@ -112,10 +128,13 @@ function Hero({ entries }: { entries: ListingEntry[] | undefined }) {
         ) : null}
       </motion.div>
 
-      {/* Two-stop scrim: darkens the photograph enough for AA text contrast
-          while keeping the subject readable. */}
-      <div className="absolute inset-0 z-10 bg-linear-to-b from-deep/85 via-deep/70 to-deep" />
-      <div className="absolute inset-0 z-10 bg-linear-to-r from-deep via-deep/60 to-transparent" />
+      {/* Two stacked full-bleed gradients used to sit here, and multiplied into
+          something close to opaque — the photograph was barely legible. Now one
+          vertical gradient anchors the copy and the bottom edge, and the
+          horizontal pass stops at the halfway mark instead of running the full
+          width, so the right side of the frame keeps its image. */}
+      <div className="absolute inset-0 z-10 bg-linear-to-b from-deep/70 via-deep/40 via-40% to-deep" />
+      <div className="absolute inset-0 z-10 bg-linear-to-r from-deep via-deep/55 via-35% to-transparent to-65%" />
 
       <Container className="relative z-20">
         <motion.div
@@ -181,7 +200,7 @@ function Rail({
   if (entries.length === 0) return null;
 
   return (
-    <Container className="mt-32">
+    <Container className="mt-section">
       <Reveal>
         <SectionHeading
           overline={overline}
@@ -212,7 +231,7 @@ function CategoryGrid() {
   const groups = groupedCategories();
 
   return (
-    <Container className="mt-32">
+    <Container className="mt-section">
       <Reveal>
         <SectionHeading overline="By Type" title="Popular Categories" />
       </Reveal>
@@ -252,7 +271,7 @@ function TechnologySpotlight({ entries }: { entries: ListingEntry[] }) {
   const span = (latest.serviceStart ?? 0) - (oldest.serviceStart ?? 0);
 
   return (
-    <Container className="mt-32">
+    <Container className="mt-section">
       <Reveal>
         <SectionHeading overline="Technology Spotlight" title="Across the Centuries" />
       </Reveal>

@@ -6,7 +6,7 @@ import { Reveal, RevealGroup, RevealItem } from '@/components/motion/Reveal';
 import { SmartImage } from '@/components/ui/Image';
 import { Button, Chip, Container, SectionHeading, Skeleton } from '@/components/ui/primitives';
 import { useEquipment, useFamilies, useListing } from '@/lib/data';
-import { sizedImage } from '@shared/images';
+import { HERO_MAX_WIDTH, heroFit, sizedImage } from '@shared/images';
 import { useDocumentMeta } from '@/lib/seo';
 import { getCategory } from '@shared/taxonomy';
 import type { Equipment } from '@shared/schema';
@@ -16,12 +16,6 @@ import { recordVisit } from '@/features/user/collections';
 import { GalleryViewer } from './Gallery';
 import { FamilyTree } from './FamilyTree';
 import { SpecTable } from './SpecTable';
-
-/**
- * Widest rendition requested for a detail hero. Must stay in step with the
- * preload emitted by scripts/prerender.ts, or the two fetch different files.
- */
-export const HERO_MAX_WIDTH = 1280;
 
 export default function EquipmentPage() {
   const { slug } = useParams<{ slug: string }>();
@@ -37,6 +31,7 @@ function Detail({ entry }: { entry: Equipment }) {
   const [copied, setCopied] = useState(false);
   const heroRef = useRef<HTMLElement>(null);
   const prefersReduced = useReducedMotion() ?? false;
+  const fit = heroFit(entry.images.hero?.width, entry.images.hero?.height);
 
   const category = getCategory(entry.category);
   const { data: families } = useFamilies();
@@ -123,28 +118,79 @@ function Detail({ entry }: { entry: Equipment }) {
           style={prefersReduced ? undefined : { y: heroY, opacity: heroOpacity }}
         >
           {entry.images.hero ? (
-            <SmartImage
-              src={sizedImage(entry.images.hero.url, HERO_MAX_WIDTH, entry.images.hero.width)}
-              alt={entry.name}
-              fill
-              priority
-              sizes="100vw"
-              // Capped rather than served at full width: the hero always sits
-              // under a heavy scrim, so the extra detail is invisible while the
-              // bytes are not — several heroes are multi-megabyte transparent
-              // PNGs, and this is the LCP element.
-              intrinsicWidth={Math.min(entry.images.hero.width, HERO_MAX_WIDTH)}
-            />
+            <>
+              {/* A letterboxed subject would otherwise sit between two dead
+                  black bands. A blurred, darkened copy of the same image fills
+                  them, so the frame stays full-bleed and the photograph's own
+                  colour carries across it.
+
+                  Requested at 500px deliberately: it is blurred well past the
+                  point where resolution is visible, so anything larger is
+                  transfer cost for no pixels anyone can see. */}
+              {fit === 'contain' ? (
+                <>
+                  <img
+                    src={sizedImage(entry.images.hero.url, 500, entry.images.hero.width)}
+                    alt=""
+                    aria-hidden="true"
+                    className="absolute inset-0 size-full scale-110 object-cover opacity-40 blur-3xl"
+                  />
+                  {/* Confined to the upper region rather than the whole frame.
+                      Letterboxing centres the subject vertically, which put it
+                      directly behind the title block — the breadcrumb landed on
+                      a pale studio backdrop at roughly 1.5:1 contrast. Giving
+                      the image the top 56% and the copy the rest keeps them
+                      apart whatever the title wraps to. */}
+                  <div className="absolute inset-x-0 top-0 h-[56%]">
+                    <SmartImage
+                      src={sizedImage(
+                        entry.images.hero.url,
+                        HERO_MAX_WIDTH,
+                        entry.images.hero.width
+                      )}
+                      alt={entry.name}
+                      fill
+                      priority
+                      fit="contain"
+                      sizes="100vw"
+                      intrinsicWidth={Math.min(entry.images.hero.width, HERO_MAX_WIDTH)}
+                      className="p-6 sm:p-10"
+                    />
+                  </div>
+                </>
+              ) : (
+                <SmartImage
+                  src={sizedImage(entry.images.hero.url, HERO_MAX_WIDTH, entry.images.hero.width)}
+                  alt={entry.name}
+                  fill
+                  priority
+                  fit="cover"
+                  sizes="100vw"
+                  intrinsicWidth={Math.min(entry.images.hero.width, HERO_MAX_WIDTH)}
+                />
+              )}
+            </>
           ) : null}
         </motion.div>
-        <div className="absolute inset-0 z-10 bg-linear-to-t from-deep via-deep/75 to-deep/40" />
+        {/* Two scrims, because the two hero layouts need opposite things.
+            Over a cropped photograph the darkening can rise gently through the
+            whole frame. Over a letterboxed one it has to be dense under the
+            copy and then clear quickly, or it dims the very subject the
+            letterbox exists to show. */}
+        <div
+          className={
+            fit === 'contain'
+              ? 'absolute inset-0 z-10 bg-linear-to-t from-deep via-deep/85 via-38% to-deep/5 to-62%'
+              : 'absolute inset-0 z-10 bg-linear-to-t from-deep via-deep/88 via-48% to-deep/10'
+          }
+        />
 
         <Container className="relative z-20 pb-16 pt-32">
           <Reveal>
             <nav aria-label="Breadcrumb" className="mb-6">
-              <ol className="flex flex-wrap items-center gap-2 text-caption text-fg-tertiary">
+              <ol className="flex flex-wrap items-center gap-2 text-caption text-fg-secondary">
                 <li>
-                  <Link to="/browse" className="transition-colors hover:text-fg-secondary">
+                  <Link to="/browse" className="transition-colors hover:text-fg">
                     Browse
                   </Link>
                 </li>
@@ -152,7 +198,7 @@ function Detail({ entry }: { entry: Equipment }) {
                 <li>
                   <Link
                     to={`/category/${entry.category}`}
-                    className="transition-colors hover:text-fg-secondary"
+                    className="transition-colors hover:text-fg"
                   >
                     {category?.name ?? entry.category}
                   </Link>
@@ -205,7 +251,7 @@ function Detail({ entry }: { entry: Equipment }) {
       </section>
 
       {/* ── Overview ─────────────────────────────────────────── */}
-      <Container className="mt-20">
+      <Container className="mt-section">
         <Reveal>
           <p className="max-w-[68ch] text-[1.25rem] leading-[1.65] text-fg-secondary">
             {entry.description}
@@ -215,7 +261,7 @@ function Detail({ entry }: { entry: Equipment }) {
 
       {/* ── Specifications ───────────────────────────────────── */}
       {entry.specifications.length > 0 ? (
-        <Container className="mt-24">
+        <Container className="mt-section">
           <Reveal>
             <SectionHeading overline="Reference" title="Specifications" />
           </Reveal>
@@ -227,7 +273,7 @@ function Detail({ entry }: { entry: Equipment }) {
 
       {/* ── Gallery strip ────────────────────────────────────── */}
       {entry.gallery.length > 1 ? (
-        <Container className="mt-24">
+        <Container className="mt-section">
           <Reveal>
             <SectionHeading overline="Imagery" title="Gallery" />
           </Reveal>
@@ -243,12 +289,13 @@ function Detail({ entry }: { entry: Equipment }) {
                   className="group relative block aspect-4/3 w-full overflow-hidden rounded-(--radius-card) border border-line bg-card transition-colors hover:border-line-strong"
                   aria-label={`Open image ${index + 1} of ${entry.gallery.length}`}
                 >
-                  <img
-                    src={sizedImage(image.url, 500)}
+                  <SmartImage
+                    src={sizedImage(image.url, 960, image.width)}
                     alt={image.caption ?? ''}
-                    loading="lazy"
-                    decoding="async"
-                    className="size-full object-cover transition-transform duration-700 ease-(--ease-out-expo) group-hover:scale-105"
+                    fill
+                    sizes="(min-width: 1024px) 20rem, (min-width: 640px) 30vw, 45vw"
+                    intrinsicWidth={image.width}
+                    className="transition-transform duration-700 ease-(--ease-out-expo) group-hover:scale-105"
                   />
                 </button>
               </RevealItem>
@@ -265,7 +312,7 @@ function Detail({ entry }: { entry: Equipment }) {
 
       {/* ── Timeline ─────────────────────────────────────────── */}
       {entry.timeline.length > 0 ? (
-        <Container className="mt-24">
+        <Container className="mt-section">
           <Reveal>
             <SectionHeading overline="Chronology" title="Timeline" />
           </Reveal>
@@ -295,7 +342,7 @@ function Detail({ entry }: { entry: Equipment }) {
 
       {/* ── Related equipment ────────────────────────────────── */}
       {related && related.length > 0 ? (
-        <Container className="mt-24">
+        <Container className="mt-section">
           <Reveal>
             <SectionHeading overline="See Also" title={`More ${category?.name ?? 'Equipment'}`} />
           </Reveal>
@@ -308,12 +355,13 @@ function Detail({ entry }: { entry: Equipment }) {
                 >
                   <div className="aspect-16/10 overflow-hidden bg-base">
                     {item.hero ? (
-                      <img
-                        src={sizedImage(item.hero, 500)}
+                      <SmartImage
+                        src={sizedImage(item.hero, 960, item.heroWidth)}
                         alt=""
-                        loading="lazy"
-                        decoding="async"
-                        className="size-full object-cover transition-transform duration-700 ease-(--ease-out-expo) group-hover:scale-105"
+                        fill
+                        sizes="(min-width: 1024px) 20rem, (min-width: 640px) 45vw, 90vw"
+                        intrinsicWidth={item.heroWidth}
+                        className="transition-transform duration-700 ease-(--ease-out-expo) group-hover:scale-105"
                       />
                     ) : null}
                   </div>
@@ -326,7 +374,7 @@ function Detail({ entry }: { entry: Equipment }) {
       ) : null}
 
       {/* ── Sources ──────────────────────────────────────────── */}
-      <Container className="mt-24">
+      <Container className="mt-section">
         <Reveal>
           <SectionHeading overline="Attribution" title="Sources" />
           <ul className="mt-8 space-y-4">
@@ -371,7 +419,7 @@ function Detail({ entry }: { entry: Equipment }) {
 
 function Prose({ overline, title, body }: { overline: string; title: string; body: string }) {
   return (
-    <Container className="mt-24">
+    <Container className="mt-section">
       <Reveal>
         <SectionHeading overline={overline} title={title} />
         <div className="mt-8 max-w-[68ch] space-y-5">
@@ -401,7 +449,7 @@ function RelationLists({ entry }: { entry: Equipment }) {
   if (blocks.length === 0) return null;
 
   return (
-    <Container className="mt-24">
+    <Container className="mt-section">
       <RevealGroup className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {blocks.map((block) => (
           <RevealItem key={block.title}>

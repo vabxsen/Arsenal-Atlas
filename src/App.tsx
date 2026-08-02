@@ -23,6 +23,12 @@ const CountriesPage = lazy(() => import('@/features/countries/CountriesPage'));
 const TimelinePage = lazy(() => import('@/features/timeline/TimelinePage'));
 const SavedPage = lazy(() => import('@/features/user/SavedPage'));
 const NotFoundPage = lazy(() => import('@/features/misc/NotFoundPage'));
+/**
+ * The admin dashboard is one lazy chunk that pulls in the Firestore write
+ * path. Splitting it matters more than the rest: a reader never loads it, and
+ * a static import would undo the on-demand Firebase policy site-wide.
+ */
+const AdminPage = lazy(() => import('@/features/admin/AdminPage'));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -57,11 +63,27 @@ function FocusOnRouteChange() {
   return null;
 }
 
+/**
+ * Route-loading placeholder.
+ *
+ * Echoes the shape every page actually has — a full-bleed hero, then a heading,
+ * then a content grid — rather than a single squat block that resembles none of
+ * them. A placeholder whose proportions do not match what replaces it reads as
+ * a layout jump even when nothing actually shifts.
+ */
 function PageFallback() {
   return (
-    <div className="mx-auto w-full max-w-(--container-page) px-6 py-32">
-      <Skeleton className="h-12 w-2/3 max-w-lg" />
-      <Skeleton className="mt-6 h-64 w-full" />
+    <div aria-hidden="true">
+      <Skeleton className="h-[52vh] w-full rounded-none" />
+      <div className="mx-auto w-full max-w-(--container-page) px-6">
+        <Skeleton className="mt-12 h-10 w-2/3 max-w-md" />
+        <Skeleton className="mt-4 h-5 w-1/2 max-w-sm" />
+        <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          {Array.from({ length: 6 }, (_, i) => (
+            <Skeleton key={i} className="h-64" />
+          ))}
+        </div>
+      </div>
     </div>
   );
 }
@@ -102,6 +124,7 @@ function AnimatedRoutes() {
             <Route path="/countries/:iso3" element={<CountriesPage />} />
             <Route path="/timeline" element={<TimelinePage />} />
             <Route path="/saved" element={<SavedPage />} />
+            <Route path="/admin/*" element={<AdminPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Suspense>

@@ -27,7 +27,7 @@ export function TimelinePreview({ entries }: { entries: ListingEntry[] }) {
   const max = Math.max(...ordered.map(([, items]) => items.length));
 
   return (
-    <Container className="mt-32">
+    <Container className="mt-section">
       <Reveal>
         <SectionHeading
           overline="Timeline"

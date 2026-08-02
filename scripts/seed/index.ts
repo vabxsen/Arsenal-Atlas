@@ -120,6 +120,25 @@ async function writeStaticExport(entries: Equipment[], families: unknown[]): Pro
   const outDir = join(PUBLIC_DIR, 'data');
   await mkdir(join(outDir, 'equipment'), { recursive: true });
 
+  // Two catalog titles can resolve to the same article — a redirect, or simply
+  // the same weapon listed under two categories. The slug is the document id
+  // everywhere downstream (file name, Firestore key, route), so a collision
+  // silently drops an entry: the corpus reports the full count while one file
+  // overwrites another and one route never gets prerendered. Cheap to detect,
+  // invisible if you do not.
+  const bySlug = new Map<string, string[]>();
+  for (const entry of entries) {
+    bySlug.set(entry.slug, [...(bySlug.get(entry.slug) ?? []), entry.name]);
+  }
+  const collisions = [...bySlug].filter(([, names]) => names.length > 1);
+  if (collisions.length > 0) {
+    console.error('\nDuplicate slugs — remove one of each pair from CATALOG:');
+    for (const [slug, names] of collisions) {
+      console.error(`  ${slug}: ${names.join(' + ')}`);
+    }
+    process.exit(1);
+  }
+
   await Promise.all(
     entries.map((entry) =>
       writeFile(join(outDir, 'equipment', `${entry.slug}.json`), JSON.stringify(entry))

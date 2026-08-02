@@ -86,7 +86,7 @@ export default function SavedPage() {
       </Container>
 
       {recentEntries.length > 0 ? (
-        <Container className="mt-24">
+        <Container className="mt-section">
           <Reveal>
             <SectionHeading
               overline="On this device"

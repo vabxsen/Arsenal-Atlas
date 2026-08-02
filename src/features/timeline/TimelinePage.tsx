@@ -132,7 +132,7 @@ export default function TimelinePage() {
                     <div className="size-14 shrink-0 overflow-hidden rounded-lg bg-base">
                       {entry.hero ? (
                         <img
-                          src={sizedImage(entry.hero, 330)}
+                          src={sizedImage(entry.hero, 330, entry.heroWidth)}
                           alt=""
                           loading="lazy"
                           decoding="async"

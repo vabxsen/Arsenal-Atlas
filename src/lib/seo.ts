@@ -33,17 +33,48 @@ function setLink(rel: string, href: string): void {
   tag.href = href;
 }
 
+const ROBOTS_ID = 'route-robots';
+
+/**
+ * Private routes are client-rendered, so the prerendered shells cannot carry
+ * their robots directive — it has to be injected and, crucially, torn down
+ * again. A tag left behind would mark whatever the user navigated to next as
+ * noindex, which is a far worse failure than the one it prevents.
+ */
+function setRobots(value: string | undefined): void {
+  const existing = document.head.querySelector<HTMLMetaElement>(`meta[id="${ROBOTS_ID}"]`);
+  if (!value) {
+    existing?.remove();
+    return;
+  }
+  const tag = existing ?? document.createElement('meta');
+  tag.id = ROBOTS_ID;
+  tag.name = 'robots';
+  tag.content = value;
+  if (!existing) document.head.appendChild(tag);
+}
+
 export interface DocumentMeta {
   title: string;
   description: string;
   image?: string | undefined;
   canonical?: string;
   jsonLd?: Record<string, unknown>;
+  /** e.g. `'noindex, nofollow'` for routes that must stay out of search. */
+  robots?: string;
 }
 
-export function useDocumentMeta({ title, description, image, canonical, jsonLd }: DocumentMeta) {
+export function useDocumentMeta({
+  title,
+  description,
+  image,
+  canonical,
+  jsonLd,
+  robots,
+}: DocumentMeta) {
   useEffect(() => {
     document.title = title;
+    setRobots(robots);
 
     setMeta('meta[name="description"]', 'name', 'description', description);
     setMeta('meta[property="og:title"]', 'property', 'og:title', title);
@@ -74,6 +105,7 @@ export function useDocumentMeta({ title, description, image, canonical, jsonLd }
 
     return () => {
       document.getElementById(JSON_LD_ID)?.remove();
+      setRobots(undefined);
     };
-  }, [title, description, image, canonical, jsonLd]);
+  }, [title, description, image, canonical, jsonLd, robots]);
 }

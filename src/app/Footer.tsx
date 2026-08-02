@@ -13,7 +13,7 @@ export function Footer() {
   const groups = groupedCategories().slice(0, 4);
 
   return (
-    <footer className="mt-32 border-t border-line bg-base/40 no-print">
+    <footer className="mt-section border-t border-line bg-base/40 no-print">
       <Container className="py-16">
         <div className="grid gap-12 lg:grid-cols-[1.5fr_repeat(4,1fr)]">
           <div>

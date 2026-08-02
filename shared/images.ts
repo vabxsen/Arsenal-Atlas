@@ -28,6 +28,50 @@
  */
 const WIDTHS = [330, 500, 960, 1280, 1920] as const;
 
+/**
+ * Largest rendition a full-bleed hero may request.
+ *
+ * Defined here rather than in the page component because the prerenderer emits
+ * the matching `<link rel="preload">` and `og:image`, and a preload that
+ * resolves to a different rendition than the `<img>` is two downloads with the
+ * LCP arriving late. One definition, imported by both.
+ *
+ * Raised from 1280 once measured: 62% of heroes have sources at or above
+ * 1920px (median 2250), so a 1280 cap was serving a 2.2x upscale to any
+ * viewport wider than ~1400 at DPR 2. The cap originally guarded against
+ * multi-megabyte transparent PNGs, but heroes are 88% JPEG and only 29 PNGs
+ * exceed 1920 — it was penalising 270 photographs to protect 29 files.
+ * Narrow viewports are unaffected: `sizes="100vw"` still selects 500 or 960
+ * from the srcset.
+ */
+export const HERO_MAX_WIDTH = 1920;
+
+/**
+ * Whether an image can be cropped to fill a landscape frame, or has to be
+ * letterboxed inside it.
+ *
+ * `object-cover` scales to fill and crops the overflow, which is right for an
+ * ordinary photograph and destructive for anything shaped very differently
+ * from the frame. Measured across the corpus: 37 heroes are wider than 2.4:1
+ * and 63 are square or portrait. The worst is the M14 at 7888x1732 — cover in
+ * a 1440x800 hero shows 40% of its width, cropping off both the muzzle and the
+ * buttstock. Side-on rifle photography is exactly the shape this breaks, and
+ * exactly what people open these pages to see.
+ *
+ * The band is deliberately generous. Cropping a little is normal and looks
+ * intentional; the letterbox treatment is reserved for images that would
+ * otherwise lose their subject.
+ *
+ * Heroes only. It was tried on cards and looked worse: in a 16:10 tile a 3:1
+ * rifle becomes a thin band adrift in dead space and a portrait shot becomes a
+ * narrow strip, so a grid of mixed ratios reads ragged. Cards crop.
+ */
+export function heroFit(width?: number, height?: number): 'cover' | 'contain' {
+  if (!width || !height) return 'cover';
+  const ratio = width / height;
+  return ratio > 2.2 || ratio < 1.2 ? 'contain' : 'cover';
+}
+
 /** Already-thumbnailed URLs carry `/thumb/` and a `NNNpx-` filename prefix. */
 const THUMB_PATTERN = /^(https:\/\/upload\.wikimedia\.org\/wikipedia\/[^/]+)\/thumb\/(.+?)\/\d+px-(.+)$/;
 const ORIGINAL_PATTERN = /^(https:\/\/upload\.wikimedia\.org\/wikipedia\/[^/]+)\/([0-9a-f]\/[0-9a-f]{2}\/)(.+)$/;

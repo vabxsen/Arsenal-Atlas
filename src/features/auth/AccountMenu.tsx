@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { Bookmark, LogOut, Monitor, Moon, Sun, User as UserIcon } from 'lucide-react';
+import { Bookmark, LogOut, Monitor, Moon, ShieldCheck, Sun, User as UserIcon } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/cn';
@@ -21,7 +21,7 @@ const THEMES: { value: ThemePreference; label: string; Icon: typeof Sun }[] = [
  */
 export function AccountMenu() {
   const [open, setOpen] = useState(false);
-  const { user, available, signIn, signOut, error } = useAuth();
+  const { user, available, isAdmin, signIn, signOut, error } = useAuth();
   const { preference, setTheme } = useTheme();
   const { favorites, synced } = useFavorites();
 
@@ -115,6 +115,21 @@ export function AccountMenu() {
               Saved
               <span className="tnum ml-auto text-fg-tertiary">{favorites.length}</span>
             </Link>
+
+            {/* Shown only to accounts whose token carries the admin claim, so
+                the entry point stays invisible to everyone else. The claim is
+                still re-checked by the route guard and by firestore.rules —
+                hiding a link is presentation, not access control. */}
+            {isAdmin ? (
+              <Link
+                to="/admin"
+                onClick={() => setOpen(false)}
+                className="flex min-h-12 items-center gap-3 px-4 text-caption text-fg-secondary transition-colors hover:bg-card hover:text-fg"
+              >
+                <ShieldCheck size={16} aria-hidden="true" />
+                Admin
+              </Link>
+            ) : null}
 
             {available ? (
               <div className="border-t border-line p-4">

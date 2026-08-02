@@ -11,12 +11,20 @@ import { readFile, readdir } from 'node:fs/promises';
 import { join } from 'node:path';
 
 const DIST = join(process.cwd(), 'dist', 'equipment');
-const SAMPLE = 25;
+// Wikimedia throttles bulk requests hard: at ~3/s the CDN returns 429 for
+// most of the run, which reads as a wall of failures when nothing is wrong.
+// Fewer entries, spaced further apart, is the difference between a usable
+// check and noise.
+const SAMPLE = 12;
 // Browser-like UA: Wikimedia rejects script agents for image requests.
 const UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0 Safari/537.36';
 
-const slugs = await readdir(DIST);
+// Flat `<slug>.html` files, per the note in scripts/prerender.ts. readdir
+// returns them with the extension, which the read below adds again.
+const slugs = (await readdir(DIST))
+  .filter((name) => name.endsWith('.html'))
+  .map((name) => name.replace(/\.html$/, ''));
 const step = Math.max(1, Math.floor(slugs.length / SAMPLE));
 const sampled = slugs.filter((_, index) => index % step === 0).slice(0, SAMPLE);
 
@@ -45,7 +53,11 @@ let ok = 0;
 const failures: string[] = [];
 
 for (const slug of sampled) {
-  const html = await readFile(join(DIST, slug, 'index.html'), 'utf8');
+  // scripts/prerender.ts writes flat files — `equipment/ak-47.html`, not
+  // `equipment/ak-47/index.html` — so that the canonical un-slashed URL is
+  // served without a redirect hop. This read assumed the directory-index form
+  // and had been failing on the first entry ever since.
+  const html = await readFile(join(DIST, `${slug}.html`), 'utf8');
   const urls = [
     /<meta property="og:image" content="([^"]+)"/.exec(html)?.[1],
     /<link rel="preload" as="image" href="([^"]+)"/.exec(html)?.[1],
@@ -60,7 +72,7 @@ for (const slug of sampled) {
     } catch (error) {
       failures.push(`${slug}: ${(error as Error).message}`);
     }
-    await sleep(350);
+    await sleep(1400);
   }
 }
 

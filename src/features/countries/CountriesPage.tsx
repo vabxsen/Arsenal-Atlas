@@ -132,7 +132,7 @@ export default function CountriesPage() {
       </Container>
 
       {selected && selectedEntries.length > 0 ? (
-        <Container className="mt-20">
+        <Container className="mt-section">
           <Reveal>
             <SectionHeading
               overline="Designed in"

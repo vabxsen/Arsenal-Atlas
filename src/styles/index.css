@@ -130,6 +130,15 @@
   /* --- Layout --------------------------------------------- */
   --container-page: 84rem;
   --spacing-nav: 3.5rem;
+
+  /* Vertical rhythm between major page sections.
+     Previously each page picked its own gap — mt-32 on the homepage, mt-24 on
+     detail pages, with mt-16 and mt-20 scattered between — so the same kind of
+     break was four different sizes depending on where you were. One token,
+     used as `mt-section`, plus a tighter step for the gap between a section
+     heading and the content it introduces. */
+  --spacing-section: 7rem;
+  --spacing-section-sm: 4rem;
 }
 
 /* ============================================================

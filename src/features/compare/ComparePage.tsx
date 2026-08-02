@@ -3,6 +3,7 @@ import { Plus, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Reveal } from '@/components/motion/Reveal';
+import { SmartImage } from '@/components/ui/Image';
 import { Container, Skeleton } from '@/components/ui/primitives';
 import { cn } from '@/lib/cn';
 import { useListing } from '@/lib/data';
@@ -102,13 +103,14 @@ export default function ComparePage() {
                   key={entry.slug}
                   className="relative overflow-hidden rounded-(--radius-card) border border-line bg-card"
                 >
-                  <div className="aspect-16/10 bg-base">
+                  <div className="relative aspect-16/10 bg-base">
                     {entry.images.hero ? (
-                      <img
-                        src={sizedImage(entry.images.hero.url, 500)}
+                      <SmartImage
+                        src={sizedImage(entry.images.hero.url, 960, entry.images.hero.width)}
                         alt={entry.name}
-                        loading="lazy"
-                        className="size-full object-cover"
+                        fill
+                        sizes="(min-width: 1024px) 20rem, 45vw"
+                        intrinsicWidth={entry.images.hero.width}
                       />
                     ) : null}
                   </div>

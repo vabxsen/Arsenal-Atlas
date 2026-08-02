@@ -494,6 +494,156 @@ export const CATALOG: readonly CatalogEntry[] = [
   e('Avro Canada CF-105 Arrow', 'experimental'),
   e('Landkreuzer P. 1000 Ratte', 'experimental'),
   e('StG 45(M)', 'experimental'),
+
+  // ── Firearms (general) ────────────────────────────────────
+  //
+  // The umbrella small-arms category, filling the same role `aircraft`,
+  // `missiles`, and `warships` play in their groups: the pieces that belong to
+  // the family but not to any of its narrower subcategories. Grenade
+  // launchers, anti-materiel rifles, and underwater weapons — "service pistols
+  // to crew-served weapons", per the blurb in shared/taxonomy.ts.
+  e('M79 grenade launcher', 'firearms', { featured: true }),
+  e('M203 grenade launcher', 'firearms'),
+  e('Mk 19 grenade launcher', 'firearms'),
+  e('Milkor MGL', 'firearms'),
+  e('GP-25', 'firearms'),
+  e('NTW-20', 'firearms'),
+  e('Steyr IWS 2000', 'firearms'),
+  e('APS underwater rifle', 'firearms'),
+  e('SPP-1 underwater pistol', 'firearms'),
+  e('Gepárd anti-materiel rifle', 'firearms'),
+
+  // ── Carbines ──────────────────────────────────────────────
+  e('CAR-15', 'carbines', { family: 'ar15' }),
+  e('SKS', 'carbines'),
+  e('Heckler & Koch HK53', 'carbines'),
+  e('Ruger Mini-14', 'carbines'),
+  e('Beretta Cx4 Storm', 'carbines'),
+  e('Type 56 carbine', 'carbines'),
+
+  // ── PDWs ──────────────────────────────────────────────────
+  e('Steyr TMP', 'pdws'),
+  e('Brügger & Thomet MP9', 'pdws'),
+  e('SIG MPX', 'pdws'),
+  e('QCW-05', 'pdws'),
+  e('Heckler & Koch MP5K', 'pdws'),
+
+  // ── Battle rifles ─────────────────────────────────────────
+  e('AR-10', 'battle-rifles'),
+  e('Springfield Armory M1A', 'battle-rifles'),
+  e('Vz. 52 rifle', 'battle-rifles'),
+
+  // ── Revolvers ─────────────────────────────────────────────
+  e('Ruger GP100', 'revolvers'),
+  e('Smith & Wesson Model 686', 'revolvers'),
+  e('Colt Detective Special', 'revolvers'),
+
+  // ── Grenades ──────────────────────────────────────────────
+  e('M84 stun grenade', 'grenades'),
+  e('M26 grenade', 'grenades'),
+  e('RGO hand grenade', 'grenades'),
+
+  // ── MANPADS ───────────────────────────────────────────────
+  e('FIM-43 Redeye', 'manpads'),
+  e('RBS 70', 'manpads'),
+  e('9K333 Verba', 'manpads'),
+  e('Blowpipe (missile)', 'manpads'),
+  e('Type 91 surface-to-air missile', 'manpads'),
+
+  // ── Mortars ───────────────────────────────────────────────
+  e('L16 81mm mortar', 'mortars'),
+  e('Stokes mortar', 'mortars'),
+  e('M2 mortar', 'mortars'),
+  e('8 cm Granatwerfer 34', 'mortars'),
+  e('2S12 Sani', 'mortars'),
+
+  // ── Naval guns ────────────────────────────────────────────
+  e('Goalkeeper CIWS', 'naval-guns'),
+  e('Mk 110 57 mm gun', 'naval-guns'),
+  e('Oerlikon 20 mm cannon', 'naval-guns'),
+  e('Bofors 40 mm Automatic Gun L/70', 'naval-guns'),
+  e('16"/50 caliber Mark 7 gun', 'naval-guns'),
+
+  // ── Cruise missiles ───────────────────────────────────────
+  e('AGM-158 JASSM', 'cruise-missiles'),
+  e('Kh-55', 'cruise-missiles'),
+  e('Kh-35', 'cruise-missiles'),
+  e('Naval Strike Missile', 'cruise-missiles'),
+  e('AGM-84 Harpoon', 'cruise-missiles'),
+
+  // ── APCs ──────────────────────────────────────────────────
+  e('M3 half-track', 'apcs'),
+  e('Type 96 armoured personnel carrier', 'apcs'),
+  e('Pandur I', 'apcs'),
+
+  // ── Warships ──────────────────────────────────────────────
+  e('Slava-class cruiser', 'warships'),
+  e('HMS Hood', 'warships'),
+  e('USS Missouri (BB-63)', 'warships'),
+
+  // ── Frigates ──────────────────────────────────────────────
+  e('Type 26 frigate', 'frigates'),
+  e('Sachsen-class frigate', 'frigates'),
+  e('Iver Huitfeldt-class frigate', 'frigates'),
+  e('Anzac-class frigate', 'frigates'),
+  e('La Fayette-class frigate', 'frigates'),
+
+  // ── Soldier systems ───────────────────────────────────────
+  e('Bayonet', 'equipment'),
+  e('Ka-Bar', 'equipment'),
+  e('Dog tag', 'equipment'),
+  e('Mess kit', 'equipment'),
+  e('Canteen (bottle)', 'equipment'),
+
+  e('Modular Tactical Vest', 'body-armor'),
+  e('Small Arms Protective Insert', 'body-armor'),
+  e('Plate carrier', 'body-armor'),
+  e('Ratnik (program)', 'body-armor'),
+  e('Ballistic shield', 'body-armor'),
+
+  e('Image intensifier', 'night-vision'),
+  e('Forward-looking infrared', 'night-vision'),
+  e('AN/PAS-13', 'night-vision'),
+  e('Starlight scope', 'night-vision'),
+  e('AN/PVS-31', 'night-vision'),
+
+  e('Red dot sight', 'optics'),
+  e('Holographic weapon sight', 'optics'),
+  e('Reflector sight', 'optics'),
+  e('Iron sights', 'optics'),
+  e('Trijicon', 'optics'),
+
+  e('Combat helmet', 'helmets'),
+  e('Adrian helmet', 'helmets'),
+  e('SSh-40', 'helmets'),
+  e('Enhanced Combat Helmet (United States)', 'helmets'),
+  e('Mk 6 helmet', 'helmets'),
+
+  // ── Destroyers ────────────────────────────────────────────
+  e('Fletcher-class destroyer', 'destroyers'),
+  e('Sovremenny-class destroyer', 'destroyers'),
+  e('Sejong the Great-class destroyer', 'destroyers'),
+
+  // ── Shotguns ──────────────────────────────────────────────
+  e('Ithaca 37', 'shotguns'),
+  e('KS-23', 'shotguns'),
+
+  // ── Artillery ─────────────────────────────────────────────
+  e('BM-30 Smerch', 'artillery'),
+  e('Type 63 multiple rocket launcher', 'artillery'),
+
+  // ── Aircraft (support / recon / transport) ────────────────
+  e('Lockheed AC-130', 'aircraft', { featured: true }),
+  e('Airbus A400M Atlas', 'aircraft'),
+  e('Lockheed P-3 Orion', 'aircraft'),
+
+  // ── Drones ────────────────────────────────────────────────
+  e('Elbit Hermes 900', 'drones'),
+  e('IAI Heron', 'drones'),
+
+  // ── Aircraft carriers ─────────────────────────────────────
+  e('Japanese aircraft carrier Akagi', 'aircraft-carriers'),
+  e('USS Lexington (CV-2)', 'aircraft-carriers'),
 ] as const;
 
 /**

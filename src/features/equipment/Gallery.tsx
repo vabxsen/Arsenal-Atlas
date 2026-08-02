@@ -157,7 +157,12 @@ export function GalleryViewer({
         <AnimatePresence mode="wait">
           <motion.img
             key={current.url}
-            src={sizedImage(current.url, zoomed ? 1920 : 1280)}
+            // The one surface whose entire purpose is looking closely at the
+            // image, so it asks for the largest rendition the source supports
+            // rather than a flat 1280 — at DPR 2 a near-fullscreen viewer wants
+            // ~2560. Passing the source width keeps Commons from being asked to
+            // upscale a small original into a bucket it cannot fill.
+            src={sizedImage(current.url, 1920, current.width)}
             alt={current.caption ?? `${title}, image ${index + 1}`}
             className={cn(
               'max-h-full max-w-full object-contain',
@@ -211,7 +216,7 @@ export function GalleryViewer({
                   aria-current={i === index}
                 >
                   <img
-                    src={sizedImage(image.url, 330)}
+                    src={sizedImage(image.url, 330, image.width)}
                     alt=""
                     loading="lazy"
                     decoding="async"

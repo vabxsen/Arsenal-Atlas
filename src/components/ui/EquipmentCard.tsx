@@ -56,6 +56,11 @@ export function EquipmentCard({
               priority={priority}
               sizes={sizes}
               intrinsicWidth={entry.heroWidth}
+              // Cropped, not letterboxed — unlike the hero. Tried the
+              // aspect-aware fit here and it was worse: at card size a 3:1
+              // rifle becomes a thin band adrift in dead space and a portrait
+              // shot becomes a narrow strip, so a grid of mixed ratios reads
+              // ragged. A filled, uniform rectangle is what makes a grid scan.
               className={cn(
                 'transition-transform duration-700 ease-(--ease-out-expo)',
                 !prefersReduced && 'group-hover:scale-105'
@@ -66,8 +71,9 @@ export function EquipmentCard({
               <span className="text-caption">No image</span>
             </div>
           )}
-          {/* Scrim keeps the overlaid label legible on bright photography. */}
-          <div className="absolute inset-x-0 bottom-0 h-24 bg-linear-to-t from-card to-transparent" />
+          {/* A short scrim at the foot of the image, so the card's border and
+              the photograph meet softly rather than as a hard seam. */}
+          <div className="absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-card/80 to-transparent" />
 
           {/* Revealed on hover, but always present for keyboard users —
               focus-within keeps it visible while tabbed to. */}
