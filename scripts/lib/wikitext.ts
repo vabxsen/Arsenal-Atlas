@@ -331,7 +331,8 @@ export function splitValueLines(value: string): { label?: string; value: string 
 
     const inline = /^([^:]{2,40}):\s*(.+)$/.exec(line);
     if (inline?.[2]) {
-      items.push({ label: inline[1]?.trim(), value: inline[2].trim() });
+      const label = inline[1]?.trim();
+      items.push(label ? { label, value: inline[2].trim() } : { value: inline[2].trim() });
       continue;
     }
 

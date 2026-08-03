@@ -10,6 +10,12 @@ import { cn } from '@/lib/cn';
  * does keep is the app's accessibility floor — every control has a real
  * `<label>`, a 44px target, and a visible focus ring, because an internal tool
  * being internal is not a reason to strand a keyboard user in it.
+ *
+ * Optional props are written `hint?: string | undefined` rather than
+ * `hint?: string`. Under `exactOptionalPropertyTypes` the shorter form means
+ * "absent", and callers pass `issueFor('name')` — a lookup that legitimately
+ * returns undefined when there is no error. For a display prop the two cases
+ * are the same thing, so the type should say so. Matches `SmartImageProps`.
  */
 
 const CONTROL =
@@ -27,9 +33,9 @@ const ICON_BUTTON =
 
 interface FieldShellProps {
   label: string;
-  hint?: string;
-  error?: string;
-  required?: boolean;
+  hint?: string | undefined;
+  error?: string | undefined;
+  required?: boolean | undefined;
   children: (props: { id: string; describedBy: string | undefined; invalid: boolean }) => ReactNode;
 }
 
@@ -70,11 +76,11 @@ interface TextProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  hint?: string;
-  error?: string;
-  required?: boolean;
-  placeholder?: string;
-  disabled?: boolean;
+  hint?: string | undefined;
+  error?: string | undefined;
+  required?: boolean | undefined;
+  placeholder?: string | undefined;
+  disabled?: boolean | undefined;
   type?: 'text' | 'url';
 }
 
@@ -151,9 +157,9 @@ export function NumberInput({
   label: string;
   value: number | undefined;
   onChange: (value: number | undefined) => void;
-  hint?: string;
-  error?: string;
-  placeholder?: string;
+  hint?: string | undefined;
+  error?: string | undefined;
+  placeholder?: string | undefined;
 }) {
   return (
     <Field label={label} hint={hint} error={error}>
@@ -191,9 +197,9 @@ export function Select<T extends string>({
   value: T;
   options: { value: T; label: string }[];
   onChange: (value: T) => void;
-  hint?: string;
-  error?: string;
-  disabled?: boolean;
+  hint?: string | undefined;
+  error?: string | undefined;
+  disabled?: boolean | undefined;
 }) {
   return (
     <Field label={label} hint={hint} error={error}>
@@ -225,7 +231,7 @@ export function Toggle({
   onChange,
 }: {
   label: string;
-  hint?: string;
+  hint?: string | undefined;
   checked: boolean;
   onChange: (checked: boolean) => void;
 }) {
@@ -266,8 +272,8 @@ export function StringList({
   label: string;
   values: string[];
   onChange: (values: string[]) => void;
-  hint?: string;
-  placeholder?: string;
+  hint?: string | undefined;
+  placeholder?: string | undefined;
 }) {
   const [draft, setDraft] = useState('');
   const id = useId();
@@ -341,9 +347,9 @@ export interface RepeatColumn<T> {
   key: keyof T & string;
   label: string;
   type?: 'text' | 'url' | 'number';
-  placeholder?: string;
+  placeholder?: string | undefined;
   /** Tailwind grid-column span out of 12. Defaults to an even split. */
-  span?: number;
+  span?: number | undefined;
 }
 
 /**
@@ -364,13 +370,13 @@ export function RepeatList<T extends Record<string, unknown>>({
   addLabel = 'Add row',
 }: {
   label: string;
-  hint?: string;
+  hint?: string | undefined;
   rows: T[];
   columns: RepeatColumn<T>[];
   blank: () => T;
   onChange: (rows: T[]) => void;
-  error?: string;
-  addLabel?: string;
+  error?: string | undefined;
+  addLabel?: string | undefined;
 }) {
   const update = (index: number, key: keyof T & string, raw: string, type: string | undefined) => {
     const value = type === 'number' ? (raw === '' ? undefined : Number(raw)) : raw;
@@ -469,7 +475,7 @@ export function JsonField<T>({
   value: T;
   onChange: (value: T) => void;
   onParseError: (error: string | null) => void;
-  hint?: string;
+  hint?: string | undefined;
   rows?: number;
 }) {
   const [text, setText] = useState(() => JSON.stringify(value, null, 2));

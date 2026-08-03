@@ -1,6 +1,13 @@
 import { motion, useReducedMotion, type Variants } from 'framer-motion';
 import type { ElementType, ReactNode } from 'react';
-import { fadeUp, resolveVariants, revealViewport, staggerParent, STAGGER } from '@/lib/motion';
+import {
+  fadeUp,
+  motionWhen,
+  resolveVariants,
+  revealViewport,
+  staggerParent,
+  STAGGER,
+} from '@/lib/motion';
 
 interface RevealProps {
   children: ReactNode;
@@ -35,7 +42,7 @@ export function Reveal({
       whileInView="visible"
       viewport={revealViewport}
       variants={resolveVariants(variants, prefersReduced, variantKey)}
-      transition={delay ? { delay } : undefined}
+      {...motionWhen(Boolean(delay), { transition: { delay } })}
     >
       {children}
     </MotionTag>

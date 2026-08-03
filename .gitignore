@@ -36,3 +36,6 @@ Thumbs.db
 *.njsproj
 *.sln
 *.sw?
+
+# tsc --build incremental state
+*.tsbuildinfo

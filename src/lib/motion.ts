@@ -101,3 +101,19 @@ export function resolveVariants(variants: Variants, prefersReduced: boolean, key
 
 /** Standard viewport config for scroll-reveal — fires once, slightly early. */
 export const revealViewport = { once: true, margin: '-80px 0px -80px 0px' } as const;
+
+/**
+ * Motion props that should disappear entirely when they do not apply.
+ *
+ * `whileHover={reduced ? undefined : {...}}` looks equivalent to omitting the
+ * prop and is not: `exactOptionalPropertyTypes` distinguishes a property that
+ * is absent from one that is present and undefined, and Framer Motion's props
+ * are declared optional in the first sense. Spreading the result of this
+ * helper omits the key, which is both what the types require and what was
+ * always meant.
+ *
+ *   <motion.div {...motionWhen(!prefersReduced, { whileHover: { y: -6 } })} />
+ */
+export function motionWhen<T extends object>(enabled: boolean, props: T): T | Record<string, never> {
+  return enabled ? props : {};
+}

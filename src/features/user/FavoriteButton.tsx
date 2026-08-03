@@ -1,6 +1,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { Bookmark } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { motionWhen } from '@/lib/motion';
 import { useFavorites } from './collections';
 
 /**
@@ -38,7 +39,7 @@ export function FavoriteButton({
       }}
       aria-pressed={active}
       aria-label={active ? `Remove ${name} from saved` : `Save ${name}`}
-      whileTap={prefersReduced ? undefined : { scale: 0.88 }}
+      {...motionWhen(!prefersReduced, { whileTap: { scale: 0.88 } })}
       transition={{ type: 'spring', stiffness: 400, damping: 22 }}
       className={cn(
         'grid size-11 shrink-0 place-items-center rounded-full transition-colors duration-200',

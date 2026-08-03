@@ -296,8 +296,8 @@ function Stat({
 }: {
   label: string;
   value: number | string;
-  tone?: Tone;
-  hint?: string;
+  tone?: Tone | undefined;
+  hint?: string | undefined;
 }) {
   return (
     <div className="rounded-(--radius-card) border border-line bg-card px-4 py-4">

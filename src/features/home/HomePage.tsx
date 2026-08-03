@@ -14,7 +14,7 @@ import {
   type ListingEntry,
 } from '@/lib/data';
 import { sizedImage, wikimediaSrcSet } from '@shared/images';
-import { heroReveal } from '@/lib/motion';
+import { heroReveal, motionWhen } from '@/lib/motion';
 import { paletteStore } from '@/features/search/store';
 import { groupedCategories } from '@shared/taxonomy';
 import { CountryRail } from './CountryRail';
@@ -109,7 +109,7 @@ function Hero({ entries }: { entries: ListingEntry[] | undefined }) {
     >
       <motion.div
         className="absolute inset-0 z-0"
-        style={prefersReduced ? undefined : { y: imageY, scale: imageScale }}
+        {...motionWhen(!prefersReduced, { style: { y: imageY, scale: imageScale } })}
       >
         {backdrop?.hero ? (
           <img
@@ -139,7 +139,7 @@ function Hero({ entries }: { entries: ListingEntry[] | undefined }) {
       <Container className="relative z-20">
         <motion.div
           className="max-w-4xl py-32"
-          style={prefersReduced ? undefined : { y: contentY, opacity: contentOpacity }}
+          {...motionWhen(!prefersReduced, { style: { y: contentY, opacity: contentOpacity } })}
         >
           <Reveal variants={heroReveal} variantKey="heroReveal">
             <p className="text-overline uppercase text-fg-tertiary">

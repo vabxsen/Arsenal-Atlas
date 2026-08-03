@@ -6,10 +6,10 @@
   "description": "A premium encyclopedia of the world's military equipment.",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build && tsx scripts/prerender.ts",
+    "build": "tsc -b && vite build && tsx scripts/prerender.ts",
     "prerender": "tsx scripts/prerender.ts",
     "preview": "vite preview --port 4173 --strictPort",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc -b",
     "lint": "eslint . --max-warnings 0",
     "format": "prettier --write \"**/*.{ts,tsx,css,json,md}\"",
     "seed": "tsx scripts/seed/index.ts",

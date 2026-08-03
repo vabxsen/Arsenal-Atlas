@@ -35,11 +35,27 @@ let appPromise: Promise<FirebaseApp> | undefined;
 let dbPromise: Promise<Firestore> | undefined;
 let authPromise: Promise<Auth> | undefined;
 
+/**
+ * Drops keys whose value is undefined.
+ *
+ * Every field of `config` reads from `import.meta.env`, so each is
+ * `string | undefined`, and a deployment that sets only some of them leaves
+ * the rest undefined. `FirebaseOptions` declares those fields optional, which
+ * under `exactOptionalPropertyTypes` means they may be *absent* — not present
+ * and undefined. Spreading the raw object is therefore a type error, and the
+ * fix is to omit the empty ones rather than to widen the target type.
+ */
+function withoutUndefined(source: Record<string, string | undefined>): Record<string, string> {
+  return Object.fromEntries(
+    Object.entries(source).filter((entry): entry is [string, string] => entry[1] !== undefined)
+  );
+}
+
 async function ensureApp(): Promise<FirebaseApp> {
   appPromise ??= (async () => {
     const { initializeApp } = await import('firebase/app');
     return initializeApp({
-      ...config,
+      ...withoutUndefined(config),
       projectId: config.projectId || 'arsenal-atlas-local',
       apiKey: config.apiKey || 'emulator-placeholder',
     });

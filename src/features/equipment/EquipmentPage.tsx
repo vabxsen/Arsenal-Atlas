@@ -10,6 +10,7 @@ import { HERO_MAX_WIDTH, heroFit, sizedImage } from '@shared/images';
 import { useDocumentMeta } from '@/lib/seo';
 import { getCategory } from '@shared/taxonomy';
 import type { Equipment } from '@shared/schema';
+import { motionWhen } from '@/lib/motion';
 import { ReadingProgress } from '@/components/ui/ReadingProgress';
 import { FavoriteButton } from '@/features/user/FavoriteButton';
 import { recordVisit } from '@/features/user/collections';
@@ -115,7 +116,7 @@ function Detail({ entry }: { entry: Equipment }) {
       >
         <motion.div
           className="absolute inset-0 z-0"
-          style={prefersReduced ? undefined : { y: heroY, opacity: heroOpacity }}
+          {...motionWhen(!prefersReduced, { style: { y: heroY, opacity: heroOpacity } })}
         >
           {entry.images.hero ? (
             <>

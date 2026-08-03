@@ -61,7 +61,7 @@ for (const slug of sampled) {
   const urls = [
     /<meta property="og:image" content="([^"]+)"/.exec(html)?.[1],
     /<link rel="preload" as="image" href="([^"]+)"/.exec(html)?.[1],
-  ].filter((url): url is string => Boolean(url) && url.startsWith('http'));
+  ].filter((url): url is string => typeof url === 'string' && url.startsWith('http'));
 
   for (const url of urls) {
     const decoded = url.replace(/&amp;/g, '&');

@@ -49,7 +49,9 @@ interface AxeViolation {
 
 const chrome = await launch({
   chromeFlags: ['--headless=new', '--no-sandbox', '--disable-gpu'],
-  chromePath: process.env.CHROME_PATH,
+  // Spread rather than assigned: under exactOptionalPropertyTypes an optional
+  // property may be absent but not explicitly undefined.
+  ...(process.env.CHROME_PATH ? { chromePath: process.env.CHROME_PATH } : {}),
 });
 
 let totalViolations = 0;

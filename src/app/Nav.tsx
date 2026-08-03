@@ -3,6 +3,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { motion, useReducedMotion } from 'framer-motion';
 import { Menu, Search, X } from 'lucide-react';
 import { cn } from '@/lib/cn';
+import { motionWhen } from '@/lib/motion';
 import { paletteStore } from '@/features/search/store';
 import { AccountMenu } from '@/features/auth/AccountMenu';
 
@@ -92,7 +93,7 @@ export function Nav() {
                     {link.label}
                     {isActive ? (
                       <motion.span
-                        layoutId={prefersReduced ? undefined : 'nav-active'}
+                        {...motionWhen(!prefersReduced, { layoutId: 'nav-active' })}
                         className="absolute inset-0 -z-10 rounded-full bg-card"
                         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                       />
