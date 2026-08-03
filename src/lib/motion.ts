@@ -25,7 +25,12 @@ export const DURATION = {
   cinematic: 0.9,
 } as const;
 
-export const STAGGER = 0.06;
+/*
+ * Halved. At 0.06 a twelve-tile grid took three quarters of a second to finish
+ * arriving, and the eye tracked the sweep instead of the content — the tell of
+ * a page that animates because it can. Content should settle, not perform.
+ */
+export const STAGGER = 0.03;
 
 export const springSoft: Transition = { type: 'spring', stiffness: 90, damping: 20, mass: 0.9 };
 export const springSnappy: Transition = { type: 'spring', stiffness: 320, damping: 30, mass: 0.6 };
@@ -36,9 +41,10 @@ const easeOut = { duration: DURATION.base * 0.65, ease: EASE_IN_EXPO } satisfies
 // ── Core variants ─────────────────────────────────────────────
 
 export const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 24 },
+  /* 24px of travel read as a slide; 10 reads as a settle. */
+  hidden: { opacity: 0, y: 10 },
   visible: { opacity: 1, y: 0, transition: ease },
-  exit: { opacity: 0, y: -12, transition: easeOut },
+  exit: { opacity: 0, y: -6, transition: easeOut },
 };
 
 export const fadeIn: Variants = {
@@ -72,7 +78,7 @@ export const staggerParent = (stagger: number = STAGGER, delayChildren = 0): Var
 
 /** Hero copy: slower and more deliberate than body content. */
 export const heroReveal: Variants = {
-  hidden: { opacity: 0, y: 40, filter: 'blur(8px)' },
+  hidden: { opacity: 0, y: 20, filter: 'blur(6px)' },
   visible: {
     opacity: 1,
     y: 0,

@@ -99,7 +99,12 @@ export default defineConfig({
   },
   build: {
     target: 'es2022',
-    cssTarget: 'chrome111',
+    /* Safari matters here: this is an Apple-styled interface, and Safari only
+       implements unprefixed `backdrop-filter` from 18. Naming Safari in the
+       target list is what makes Lightning CSS emit the -webkit- alias
+       alongside the standard property; with `chrome111` alone the frosted nav
+       silently lost its blur on any older Safari. */
+    cssTarget: ['chrome111', 'safari15', 'firefox115'],
     sourcemap: false,
     rollupOptions: {
       output: {

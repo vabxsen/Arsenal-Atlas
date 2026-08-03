@@ -29,6 +29,7 @@ warm); it also regenerates the gitignored `data/` blob that `npm run push` consu
 | `npm run test:derive` | Check the derived-field logic against the seeded corpus |
 | `npm run test:rules` | Exercise the admin write path through `firestore.rules` (needs emulators) |
 | `npm run verify:bundle` | Assert Firebase and admin stay out of the entry chunk and precache |
+| `npm run verify:contrast` | Measure text-on-photograph contrast (needs `preview` running) |
 | `npm run verify:images` | Check prerendered og:image URLs resolve on the Commons CDN |
 | `npm run emulators` | Firebase Auth + Firestore emulators |
 | `npm run lint` / `npm run typecheck` | ESLint (zero warnings) / `tsc --noEmit` |
@@ -48,6 +49,14 @@ Lighthouse 13, desktop preset, against `npm run preview`. axe-core 4.12 across 8
 
 axe-core: **0 violations across 20 combinations** — 10 routes x both themes.
 
+axe reports colour-contrast as *incomplete* wherever text sits on a background image, so it
+is silent on the heroes and the browse tiles — the surfaces this design leans on hardest.
+`npm run verify:contrast` covers those separately by screenshotting the page and sampling the
+composited pixels behind each line of text. It samples line rects rather than element boxes
+(a block heading spans its container even when the last line is one short word) and scores
+each line in thirds (a headline running from a dark edge onto bright sky averages to a pass
+while its right-hand end is unreadable).
+
 Against the deployed site the numbers are a little better, because Firebase's CDN beats
 `vite preview` — `/` 99–100, `/browse` 97, `/equipment/:slug` **95**, all at CLS 0. (A cold
 first run reports lower; take the warm runs.)
@@ -66,6 +75,42 @@ Two scores are capped by deliberate architecture choices rather than defects:
 
 Note that hotlinking also rules out serving WebP/AVIF: we cannot re-encode images we do not
 host, so responsive sizing is the only lever available on image weight.
+
+## Design language
+
+Minimal, image-led, near-monochrome. Content sits on the page surface and is separated by
+space; a filled panel or a border is the exception rather than the default container.
+
+This replaced an outlined-grey-card idiom that had accumulated **125 border utilities, 66
+filled panels and 41 pill shapes** across `src/` — every section boxed, every control a
+lozenge, which reads as a dashboard rather than a reference work. Three specific things were
+doing the most damage: page `<h1>`s rendered through a grey gradient (`text-titanium`, now
+retired) so the primary heading was duller than the section headings beneath it; category
+covers held at `opacity-20` under a near-opaque wash, turning the browse grid into grey
+rectangles; and an accent inherited from a generic dark template.
+
+Load-bearing decisions:
+
+**The elevation ramp stops at `#242426`.** `--color-fg-tertiary` (`#8a8a8f`) clears 4.5:1 on
+surfaces up to that value and fails above it — 4.51:1 on `elevated`, 4.06:1 at `#2c2c2e`. A
+first pass ran the ramp to `#2c2c2e`/`#3a3a3c` and axe caught the sticky header in Compare
+immediately. Tertiary text is valid on `deep`, `base`, `card` and `elevated`; on `raised`,
+which exists for hover states, use `fg-secondary`.
+
+**The accent is not Apple's `#007AFF`.** Measured against this palette both it (4.02:1) and
+apple.com's `#0071E3` (4.31:1 on `--color-base`) fail the AA floor for normal text. Apple
+does not hold that blue to WCAG; the 0-violation axe gate here does. Light mode uses
+`#0068D6`, the lightest blue in the same family that clears it. Dark mode uses `#0A84FF`,
+which is fine at 5.76:1 on black.
+
+**Photographic tiles carry `.on-dark`.** Their scrim is built from `--color-deep`, which
+inverts to white in light mode — that would wash the photograph out and leave dark text
+sitting on whatever the picture happens to be. They stay dark in both themes, as the heroes
+do.
+
+**`-apple-system` leads the font stack.** SF Pro cannot be licensed for the web, so asking
+the OS for it is the only way to render this interface in its actual typeface; Inter
+Variable stays as the fallback everywhere else.
 
 ## Imagery
 

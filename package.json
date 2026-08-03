@@ -18,6 +18,7 @@
     "test:derive": "tsx scripts/lib/derive.test.ts",
     "test:rules": "tsx scripts/lib/rules.test.ts",
     "verify:bundle": "tsx scripts/verifyBundle.ts",
+    "verify:contrast": "tsx scripts/verifyContrast.ts",
     "verify:images": "tsx scripts/verifyOgImages.ts",
     "emulators": "firebase emulators:start --import=./.emulator-data --export-on-exit=./.emulator-data"
   },

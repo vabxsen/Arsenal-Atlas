@@ -9,11 +9,15 @@ import { FavoriteButton } from '@/features/user/FavoriteButton';
 import { SmartImage } from './Image';
 
 /**
- * The workhorse card used by every rail and grid.
+ * The workhorse tile used by every rail and grid.
  *
- * The lift-on-hover is a transform so it never triggers layout, and the image
- * zoom lives on a child so the card's own border stays crisp. Both are gated
- * on reduced-motion.
+ * Image-first: a rounded photograph with its label set beneath, on the page
+ * background. No panel, no outline, no shadow — the picture is the object and
+ * the type is a caption for it, which is why a grid of these reads as a
+ * gallery rather than as a table of boxes.
+ *
+ * The image zoom is a transform on a child so it never triggers layout, and it
+ * is gated on reduced-motion.
  */
 export function EquipmentCard({
   entry,
@@ -41,14 +45,11 @@ export function EquipmentCard({
   return (
     <motion.article
       className={cn('group relative', className)}
-      {...motionWhen(!prefersReduced, { whileHover: { y: -6 } })}
+      {...motionWhen(!prefersReduced, { whileHover: { y: -4 } })}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
     >
-      <Link
-        to={`/equipment/${entry.slug}`}
-        className="block overflow-hidden rounded-(--radius-card) border border-line bg-card shadow-(--shadow-card) transition-colors duration-300 group-hover:border-line-strong"
-      >
-        <div className="relative aspect-16/10 overflow-hidden bg-base">
+      <Link to={`/equipment/${entry.slug}`} className="block">
+        <div className="relative aspect-16/10 overflow-hidden rounded-(--radius-card) bg-base">
           {entry.hero ? (
             <SmartImage
               src={sizedImage(entry.hero, 960, entry.heroWidth)}
@@ -72,31 +73,24 @@ export function EquipmentCard({
               <span className="text-caption">No image</span>
             </div>
           )}
-          {/* A short scrim at the foot of the image, so the card's border and
-              the photograph meet softly rather than as a hard seam. */}
-          <div className="absolute inset-x-0 bottom-0 h-16 bg-linear-to-t from-card/80 to-transparent" />
-
           {/* Revealed on hover, but always present for keyboard users —
               focus-within keeps it visible while tabbed to. */}
-          <div className="absolute right-2 top-2 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
+          <div className="absolute right-2.5 top-2.5 opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-within:opacity-100">
             <FavoriteButton slug={entry.slug} name={entry.name} variant="overlay" />
           </div>
         </div>
 
-        <div className="p-5">
-          <p className="text-overline uppercase text-fg-tertiary">
+        {/* Caption block: name, then one quiet line of provenance. The
+            description was dropped — at three lines per tile across a
+            twelve-tile grid it turned a gallery into a wall of prose, and it
+            is the first thing on the detail page anyway. */}
+        <div className="pt-4">
+          <Heading className="text-h3 text-fg">{entry.name}</Heading>
+          <p className="tnum mt-1 text-caption text-fg-tertiary">
             {category?.name ?? entry.category}
+            {country ? ` · ${country}` : ''}
+            {entry.serviceStart ? ` · ${entry.serviceStart}` : ''}
           </p>
-          <Heading className="mt-2 text-h3 text-fg">{entry.name}</Heading>
-          <p className="mt-2 line-clamp-2 text-caption text-fg-secondary">{entry.description}</p>
-
-          {(country ?? entry.serviceStart) ? (
-            <p className="tnum mt-3 text-caption text-fg-tertiary">
-              {country}
-              {country && entry.serviceStart ? ' · ' : ''}
-              {entry.serviceStart}
-            </p>
-          ) : null}
         </div>
       </Link>
     </motion.article>

@@ -137,7 +137,7 @@ export default function EquipmentEditor() {
 
   if (!isNew && !isLoading && !loaded) {
     return (
-      <div className="rounded-(--radius-card) border border-line bg-card px-6 py-16 text-center">
+      <div className="rounded-(--radius-card) bg-card px-6 py-16 text-center">
         <p className="text-h3 text-fg">No entry at “{slug}”</p>
         <p className="mt-2 text-caption text-fg-secondary">
           It may have been deleted, or it exists only in the static export.

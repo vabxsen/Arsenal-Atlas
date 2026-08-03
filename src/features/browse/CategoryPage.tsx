@@ -80,7 +80,7 @@ export default function CategoryPage() {
             </ol>
           </nav>
 
-          <h1 className="mt-6 text-h1 text-titanium">{category.name}</h1>
+          <h1 className="mt-6 text-h1 text-fg">{category.name}</h1>
           <p className="mt-4 max-w-[58ch] text-body text-fg-secondary">{category.blurb}</p>
           <p className="tnum mt-4 text-caption text-fg-tertiary">
             {items.length} {items.length === 1 ? 'entry' : 'entries'}
@@ -115,7 +115,7 @@ export default function CategoryPage() {
                 <select
                   value={country ?? ''}
                   onChange={(event) => setCountry(event.target.value || null)}
-                  className="min-h-11 rounded-full border border-line bg-card px-4 text-caption text-fg outline-none focus-visible:border-line-glow"
+                  className="min-h-11 rounded-full bg-elevated px-4 text-caption text-fg outline-none focus-visible:ring-2 focus-visible:ring-accent/50"
                 >
                   <option value="">All countries</option>
                   {countries.map((name) => (
@@ -138,7 +138,7 @@ export default function CategoryPage() {
             ))}
           </div>
         ) : items.length === 0 ? (
-          <div className="rounded-(--radius-card) border border-line bg-card p-12 text-center">
+          <div className="rounded-(--radius-card) bg-card p-12 text-center">
             <p className="text-body text-fg-secondary">
               No entries match this filter yet.
             </p>

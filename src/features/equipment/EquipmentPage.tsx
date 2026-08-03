@@ -242,7 +242,7 @@ function Detail({ entry }: { entry: Equipment }) {
               </Button>
               <Link
                 to={`/compare?add=${entry.slug}`}
-                className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line-strong bg-card px-6 text-[0.9375rem] font-medium text-fg transition-colors hover:bg-elevated"
+                className="inline-flex min-h-11 items-center gap-2 rounded-full bg-elevated px-6 text-[0.9375rem] font-medium text-fg transition-colors hover:bg-raised"
               >
                 <GitCompareArrows size={16} /> Compare
               </Link>
@@ -254,7 +254,7 @@ function Detail({ entry }: { entry: Equipment }) {
       {/* ── Overview ─────────────────────────────────────────── */}
       <Container className="mt-section">
         <Reveal>
-          <p className="max-w-[68ch] text-[1.25rem] leading-[1.65] text-fg-secondary">
+          <p className="max-w-[62ch] text-[1.375rem] leading-[1.55] text-fg">
             {entry.description}
           </p>
         </Reveal>
@@ -287,7 +287,7 @@ function Detail({ entry }: { entry: Equipment }) {
                 <button
                   type="button"
                   onClick={() => setGalleryIndex(index)}
-                  className="group relative block aspect-4/3 w-full overflow-hidden rounded-(--radius-card) border border-line bg-card transition-colors hover:border-line-strong"
+                  className="group relative block aspect-4/3 w-full overflow-hidden rounded-(--radius-card) bg-base"
                   aria-label={`Open image ${index + 1} of ${entry.gallery.length}`}
                 >
                   <SmartImage
@@ -321,7 +321,7 @@ function Detail({ entry }: { entry: Equipment }) {
             {entry.timeline.map((event) => (
               <RevealItem as="li" key={`${event.year}-${event.title}`}>
                 <div className="flex gap-6 border-b border-line py-5">
-                  <span className="tnum w-16 shrink-0 text-h3 text-titanium">{event.year}</span>
+                  <span className="tnum w-16 shrink-0 text-h3 text-fg">{event.year}</span>
                   <div className="min-w-0">
                     <p className="text-[0.9375rem] text-fg">{event.title}</p>
                     {event.detail ? (
@@ -350,11 +350,8 @@ function Detail({ entry }: { entry: Equipment }) {
           <RevealGroup className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {related.map((item) => (
               <RevealItem key={item.id}>
-                <Link
-                  to={`/equipment/${item.slug}`}
-                  className="group block overflow-hidden rounded-(--radius-card) border border-line bg-card transition-colors hover:border-line-strong"
-                >
-                  <div className="aspect-16/10 overflow-hidden bg-base">
+                <Link to={`/equipment/${item.slug}`} className="group block">
+                  <div className="aspect-16/10 overflow-hidden rounded-(--radius-card) bg-base">
                     {item.hero ? (
                       <SmartImage
                         src={sizedImage(item.hero, 960, item.heroWidth)}
@@ -366,7 +363,7 @@ function Detail({ entry }: { entry: Equipment }) {
                       />
                     ) : null}
                   </div>
-                  <p className="p-4 text-[0.9375rem] text-fg">{item.name}</p>
+                  <p className="pt-3 text-[0.9375rem] text-fg">{item.name}</p>
                 </Link>
               </RevealItem>
             ))}
@@ -454,8 +451,10 @@ function RelationLists({ entry }: { entry: Equipment }) {
       <RevealGroup className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {blocks.map((block) => (
           <RevealItem key={block.title}>
-            <div className="rounded-(--radius-card) border border-line bg-card p-6">
-              <h3 className="text-overline uppercase text-fg-tertiary">{block.title}</h3>
+            <div>
+              <h3 className="border-b border-line pb-3 text-overline uppercase text-fg-tertiary">
+                {block.title}
+              </h3>
               <ul className="mt-4 flex flex-wrap gap-2">
                 {block.items.map((item) => (
                   <Chip as="li" key={item}>

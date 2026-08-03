@@ -45,7 +45,7 @@ export function FavoriteButton({
         'grid size-11 shrink-0 place-items-center rounded-full transition-colors duration-200',
         variant === 'overlay'
           ? 'bg-deep/60 backdrop-blur-md hover:bg-deep/80'
-          : 'border border-line-strong bg-card hover:bg-elevated',
+          : 'bg-elevated hover:bg-raised',
         active ? 'text-accent-bright' : 'text-fg-secondary hover:text-fg',
         className
       )}

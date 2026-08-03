@@ -8,6 +8,12 @@ import { cn } from '@/lib/cn';
  * Every interactive element here meets the 44px minimum target and keeps a
  * visible focus ring — on these surfaces the browser default is effectively
  * invisible, so removing it would strand keyboard users.
+ *
+ * Used by every page *and* by the admin surface, so a change here propagates
+ * everywhere. `Card` in particular is no longer the default container: most
+ * content is meant to sit directly on the page with space around it, and a
+ * filled surface is reserved for the few places something genuinely needs to
+ * be lifted off the background.
  */
 
 // ── Button ────────────────────────────────────────────────────
@@ -25,9 +31,11 @@ const BUTTON_BASE =
   'active:scale-[0.97] disabled:pointer-events-none disabled:opacity-40';
 
 const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
-  primary: 'bg-fg text-deep hover:bg-white',
-  secondary: 'border border-line-strong bg-card text-fg hover:bg-elevated hover:border-line-glow',
-  ghost: 'text-fg-secondary hover:text-fg hover:bg-card',
+  primary: 'bg-fg text-deep hover:opacity-90',
+  // Filled rather than outlined. An outline on a dark page reads as a wire
+  // frame; a low-contrast fill reads as a surface, which is what it is.
+  secondary: 'bg-elevated text-fg hover:bg-raised',
+  ghost: 'text-fg-secondary hover:text-fg hover:bg-elevated',
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
@@ -65,15 +73,16 @@ export function ButtonLink({
 
 // ── Surface ───────────────────────────────────────────────────
 
+/**
+ * A lifted surface. Unbordered by design — see the note on `--color-line`.
+ *
+ * Reach for this only when something must read as separate from the page
+ * (a dialog, a callout, an editor panel). Grids, sections and list rows
+ * should sit on the background and be separated by space.
+ */
 export function Card({ className, children, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
-    <div
-      className={cn(
-        'rounded-(--radius-card) border border-line bg-card shadow-(--shadow-card)',
-        className
-      )}
-      {...props}
-    >
+    <div className={cn('rounded-(--radius-card) bg-card', className)} {...props}>
       {children}
     </div>
   );
@@ -93,7 +102,7 @@ export function Chip({
   return (
     <Tag
       className={cn(
-        'inline-flex items-center rounded-full border border-line bg-base px-3 py-1',
+        'inline-flex items-center rounded-full bg-elevated px-3 py-1',
         'text-caption text-fg-secondary',
         className
       )}
@@ -111,18 +120,18 @@ export function SectionHeading({
   action,
   className,
 }: {
-  overline?: string;
+  overline?: string | undefined;
   title: string;
   action?: ReactNode;
-  className?: string;
+  className?: string | undefined;
 }) {
   return (
-    <div className={cn('flex items-end justify-between gap-6', className)}>
+    <div className={cn('flex flex-wrap items-baseline justify-between gap-x-6 gap-y-2', className)}>
       <div>
         {overline ? (
-          <p className="text-overline uppercase text-fg-tertiary">{overline}</p>
+          <p className="mb-2 text-overline uppercase text-fg-tertiary">{overline}</p>
         ) : null}
-        <h2 className="mt-2 text-h2 text-fg">{title}</h2>
+        <h2 className="text-h2 text-fg">{title}</h2>
       </div>
       {action}
     </div>

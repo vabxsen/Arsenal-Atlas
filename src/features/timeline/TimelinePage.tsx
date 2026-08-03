@@ -55,7 +55,7 @@ export default function TimelinePage() {
       <Container className="pt-20">
         <Reveal>
           <p className="text-overline uppercase text-fg-tertiary">Chronology</p>
-          <h1 className="mt-6 text-h1 text-titanium">Timeline</h1>
+          <h1 className="mt-6 text-h1 text-fg">Timeline</h1>
           <p className="mt-4 max-w-[56ch] text-body text-fg-secondary">
             Equipment ordered by the year it entered service. Select a decade to focus, or scroll
             the full span.

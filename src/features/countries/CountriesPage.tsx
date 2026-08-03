@@ -78,7 +78,7 @@ export default function CountriesPage() {
       <Container className="pt-20">
         <Reveal>
           <p className="text-overline uppercase text-fg-tertiary">Country Explorer</p>
-          <h1 className="mt-6 text-h1 text-titanium">Where It Was Made</h1>
+          <h1 className="mt-6 text-h1 text-fg">Where It Was Made</h1>
           <p className="mt-4 max-w-[56ch] text-body text-fg-secondary">
             {ranked.length} countries of origin across the collection. Select a country on the map
             or from the list.
@@ -86,7 +86,7 @@ export default function CountriesPage() {
         </Reveal>
 
         <Reveal className="mt-12">
-          <div className="rounded-(--radius-card) border border-line bg-card p-4 sm:p-8">
+          <div className="rounded-(--radius-card) bg-card p-4 sm:p-8">
             {topology && !isLoading ? (
               <WorldMap
                 topology={topology}

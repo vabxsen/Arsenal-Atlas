@@ -51,7 +51,7 @@ export function TimelinePreview({ entries }: { entries: ListingEntry[] }) {
           tabIndex={0}
           role="region"
           aria-label="Entries by decade, scrollable"
-          className="overflow-x-auto rounded-(--radius-card) border border-line bg-card p-6"
+          className="overflow-x-auto rounded-(--radius-card) bg-card p-6"
         >
           <ol className="flex min-w-max items-end gap-2" aria-label="Entries by decade">
             {ordered.map(([decade, items]) => {

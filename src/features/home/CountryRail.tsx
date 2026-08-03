@@ -44,7 +44,7 @@ export function CountryRail({ entries }: { entries: ListingEntry[] }) {
           <RevealItem key={country.iso3}>
             <Link
               to={`/countries/${country.iso3}`}
-              className="group relative block overflow-hidden rounded-(--radius-card) border border-line bg-card px-5 py-4 transition-colors duration-300 hover:border-line-strong"
+              className="group relative block overflow-hidden rounded-(--radius-card) bg-card px-5 py-4 transition-colors duration-300 hover:bg-elevated"
             >
               {/* Proportional fill doubles as the bar chart — no separate
                   visualisation needed at this density. */}

@@ -88,7 +88,7 @@ export default function ComparePage() {
       <Container className="pt-20">
         <Reveal>
           <p className="text-overline uppercase text-fg-tertiary">Side by Side</p>
-          <h1 className="mt-6 text-h1 text-titanium">Compare</h1>
+          <h1 className="mt-6 text-h1 text-fg">Compare</h1>
           <p className="mt-4 max-w-[54ch] text-body text-fg-secondary">
             Select up to four entries. Values that differ across the selection are highlighted.
           </p>
@@ -101,7 +101,7 @@ export default function ComparePage() {
               return entry ? (
                 <div
                   key={entry.slug}
-                  className="relative overflow-hidden rounded-(--radius-card) border border-line bg-card"
+                  className="relative overflow-hidden rounded-(--radius-card) bg-card"
                 >
                   <div className="relative aspect-16/10 bg-base">
                     {entry.images.hero ? (
@@ -141,7 +141,7 @@ export default function ComparePage() {
         {loading ? (
           <Skeleton className="h-96 w-full" />
         ) : entries.length < 2 ? (
-          <div className="rounded-(--radius-card) border border-line bg-card p-12 text-center">
+          <div className="rounded-(--radius-card) bg-card p-12 text-center">
             <p className="text-body text-fg-secondary">
               Add at least two entries to see a comparison.
             </p>
@@ -151,14 +151,14 @@ export default function ComparePage() {
             tabIndex={0}
             role="region"
             aria-label="Comparison table, scrollable"
-            className="overflow-x-auto rounded-(--radius-card) border border-line bg-card"
+            className="overflow-x-auto rounded-(--radius-card) bg-card"
           >
             <table className="w-full min-w-3xl border-collapse text-left">
               <thead>
                 {/* Sticky header keeps the entry names visible while scrolling
                     a long specification list. */}
                 <tr className="sticky top-nav z-10 bg-elevated">
-                  <th scope="col" className="w-56 p-4 text-overline uppercase text-fg-tertiary">
+                  <th scope="col" className="w-56 p-4 text-overline uppercase text-fg-secondary">
                     Specification
                   </th>
                   {entries.map((entry) => (
@@ -238,7 +238,7 @@ function AddSlot({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex h-full min-h-52 w-full flex-col items-center justify-center gap-3 rounded-(--radius-card) border border-dashed border-line-strong bg-card/50 text-fg-tertiary transition-colors hover:border-line-glow hover:text-fg-secondary"
+        className="flex h-full min-h-52 w-full flex-col items-center justify-center gap-3 rounded-(--radius-card) border border-dashed border-line-strong bg-base text-fg-tertiary transition-colors hover:border-line-glow hover:text-fg-secondary"
         aria-expanded={open}
       >
         <Plus size={22} />
@@ -252,7 +252,7 @@ function AddSlot({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -4 }}
             transition={{ duration: 0.2 }}
-            className="absolute inset-x-0 top-full z-20 mt-2 overflow-hidden rounded-(--radius-card) border border-line-strong bg-elevated shadow-(--shadow-sheet)"
+            className="absolute inset-x-0 top-full z-20 mt-2 overflow-hidden rounded-(--radius-card) bg-elevated shadow-(--shadow-sheet)"
           >
             <input
               type="search"

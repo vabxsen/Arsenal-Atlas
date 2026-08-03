@@ -9,18 +9,20 @@ import type { SpecGroup } from '@shared/schema';
  */
 export function SpecTable({ groups }: { groups: SpecGroup[] }) {
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="grid gap-x-16 gap-y-12 lg:grid-cols-2">
       {groups.map((group) => (
-        <section
-          key={group.group}
-          className="rounded-(--radius-card) border border-line bg-card p-6"
-        >
-          <h3 className="text-overline uppercase text-fg-tertiary">{group.group}</h3>
-          <dl className="mt-5">
+        <section key={group.group}>
+          {/* No panel, no fill. A specification list is already a strongly
+              structured thing — the group name and a rule under it separate it
+              from the next one, and a box around that only adds an edge to
+              read past. The one hairline per row is the exception the
+              --color-line note allows: these rows genuinely abut. */}
+          <h3 className="text-h3 text-fg">{group.group}</h3>
+          <dl className="mt-4">
             {group.items.map((item, index) => (
               <div
                 key={`${item.label}-${index}`}
-                className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1 border-t border-line py-3 first:border-t-0 first:pt-0"
+                className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-1 border-t border-line py-3.5"
               >
                 <dt className="text-caption text-fg-tertiary">{item.label}</dt>
                 {/* Tabular figures keep decimal points aligned down the column. */}

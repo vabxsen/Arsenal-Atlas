@@ -29,7 +29,7 @@ export default function BrowsePage() {
       <Container className="pt-20">
         <Reveal>
           <p className="text-overline uppercase text-fg-tertiary">The Collection</p>
-          <h1 className="mt-6 max-w-[16ch] text-h1 text-titanium">Browse the Arsenal</h1>
+          <h1 className="mt-6 max-w-[16ch] text-h1 text-fg">Browse the Arsenal</h1>
           <p className="mt-6 max-w-[56ch] text-body text-fg-secondary">
             {entries ? `${entries.length} entries` : 'Hundreds of entries'} across 44 categories,
             from service pistols to nuclear-powered aircraft carriers.
@@ -61,8 +61,19 @@ export default function BrowsePage() {
                   <RevealItem key={category.slug}>
                     <Link
                       to={`/category/${category.slug}`}
-                      className="group relative flex h-44 flex-col justify-end overflow-hidden rounded-(--radius-card) border border-line bg-card p-6 transition-colors duration-300 hover:border-line-strong"
+                      className="on-dark group relative flex h-56 flex-col justify-end overflow-hidden rounded-(--radius-card) bg-base p-6"
                     >
+                      {/* Full opacity. This was previously held at 0.2 beneath
+                          a near-opaque wash, which turned the whole browse
+                          grid into a field of grey rectangles with the
+                          photography barely detectable. The imagery is the
+                          point; a real bottom-weighted scrim carries the text.
+
+                          `on-dark` because the scrim is built from --color-deep:
+                          in light mode that inverts to white, which would wash
+                          the photograph out and leave dark text sitting on
+                          whatever the picture happens to be. A photographic
+                          tile stays dark in both themes, same as the heroes. */}
                       {cover ? (
                         <img
                           src={sizedImage(cover.url, 960, cover.width)}
@@ -72,17 +83,14 @@ export default function BrowsePage() {
                           aria-hidden="true"
                           loading="lazy"
                           decoding="async"
-                          className="absolute inset-0 size-full object-cover opacity-20 transition-all duration-700 ease-(--ease-out-expo) group-hover:scale-105 group-hover:opacity-30"
+                          className="absolute inset-0 size-full object-cover transition-transform duration-700 ease-(--ease-out-expo) group-hover:scale-105"
                         />
                       ) : null}
-                      <div className="absolute inset-0 bg-linear-to-t from-card via-card/85 to-card/40" />
+                      <div className="absolute inset-0 bg-linear-to-t from-deep via-deep/75 via-45% to-deep/25" />
 
                       <div className="relative">
                         <h3 className="text-h3 text-fg">{category.name}</h3>
-                        <p className="mt-1 line-clamp-2 text-caption text-fg-secondary">
-                          {category.blurb}
-                        </p>
-                        <p className="tnum mt-3 text-overline uppercase text-fg-tertiary">
+                        <p className="tnum mt-1.5 text-caption text-fg-secondary">
                           {count} {count === 1 ? 'entry' : 'entries'}
                         </p>
                       </div>

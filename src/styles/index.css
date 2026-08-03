@@ -31,25 +31,54 @@
    Arsenal Atlas — Design Tokens
    Single source of truth. Components never carry raw hex.
 
-   Palette is the project spec, verified for contrast:
-     fg-secondary #A1A1A6 -> 8.1:1 on bg-deep, 6.9:1 on bg-card  (AA body)
-     fg-tertiary  #6E6E73 -> 3.5:1 on bg-card  (large/decorative ONLY)
-   Easing + elevation scale come from the ui-ux-pro-max
-   "Modern Dark (Cinema Mobile)" style.
+   Minimal, image-led, near-monochrome. Content sits on the page
+   surface and is separated by space; borders and filled panels
+   are the exception, not the container of first resort.
+
+   Colour carries exactly one meaning — interactive — through the
+   accent. Everything else is greyscale, so imagery is the only
+   thing on the page with hue.
+
+   Contrast is a hard gate, not a guideline: `npm run a11y` fails
+   the build on any violation, and `npm run verify:contrast`
+   covers text over photography, which axe cannot evaluate.
+     fg            -> 19.3:1 on deep
+     fg-secondary  ->  8.2:1 on deep
+     fg-tertiary   ->  6.1:1 on deep, 5.0:1 on card
+     accent        ->  5.8:1 on deep, 4.7:1 on card
    ============================================================ */
 
 @theme {
   /* --- Surfaces ------------------------------------------- */
-  --color-deep: #020202;
-  --color-base: #111111;
-  --color-card: #181818;
-  --color-elevated: #1f1f1f;
-  --color-raised: #262626;
+  /* True black, not near-black. On OLED the page edge disappears entirely,
+     so full-bleed imagery reads as floating rather than sitting in a box —
+     which is the whole point of an image-led layout. The greys above it are
+     Apple's dark elevation steps. */
+  --color-deep: #000000;
+  --color-base: #0a0a0a;
+  --color-card: #1c1c1e;
+  --color-elevated: #242426;
+  --color-raised: #2c2c2e;
+
+  /*
+   * The ramp stops here for a measured reason. --color-fg-tertiary (#8a8a8f)
+   * clears 4.5:1 on surfaces up to #242426 and fails above it — 4.51:1 on
+   * `elevated`, 4.06:1 at #2c2c2e. A first attempt at this palette ran the
+   * ramp to #2c2c2e/#3a3a3c and axe caught the sticky header in Compare
+   * immediately.
+   *
+   * So: tertiary text is valid on deep, base, card and elevated. On `raised`
+   * — which exists for hover states — use fg-secondary or fg.
+   */
 
   /* --- Hairlines ------------------------------------------ */
-  --color-line: rgb(255 255 255 / 0.08);
-  --color-line-strong: rgb(255 255 255 / 0.14);
-  --color-line-glow: rgb(255 255 255 / 0.22);
+  /* Deliberately faint, and deliberately rare. Separation in this design
+     comes from space; a hairline is for the few places where two regions
+     genuinely abut (table rows, the nav once it is scrolled). If you find
+     yourself reaching for one to define a card, the card is the problem. */
+  --color-line: rgb(255 255 255 / 0.06);
+  --color-line-strong: rgb(255 255 255 / 0.12);
+  --color-line-glow: rgb(255 255 255 / 0.2);
 
   /* --- Foreground ----------------------------------------- */
   --color-fg: #f5f5f7;
@@ -62,9 +91,13 @@
   --color-fg-tertiary: #8a8a8f;
 
   /* --- Accent (used sparingly) ---------------------------- */
-  --color-accent: #5e6ad2;
-  --color-accent-bright: #7c87e8;
-  --color-accent-dim: rgb(94 106 210 / 0.16);
+  /* Apple's dark-mode system blue. The palette is otherwise greyscale, so
+     this carries one job: interactive. Focus rings, links, and the single
+     primary action in a view — nothing decorative.
+     5.76:1 on true black, 4.66:1 on --color-card. */
+  --color-accent: #0a84ff;
+  --color-accent-bright: #409cff;
+  --color-accent-dim: rgb(10 132 255 / 0.16);
 
   /* --- Semantic ------------------------------------------- */
   --color-danger: #ff453a;
@@ -72,29 +105,42 @@
   --color-warning: #ffd60a;
 
   /* --- Typography ----------------------------------------- */
+  /*
+   * `-apple-system` leads deliberately. SF Pro cannot be licensed for the web,
+   * so the only way to render an Apple interface in its actual typeface is to
+   * ask the OS for it — which is exactly what apple.com does. Mac, iPhone and
+   * iPad get real SF; everyone else falls through to the self-hosted Inter
+   * Variable below, which is the closest widely-available substitute.
+   */
   --font-sans:
-    'Inter Variable', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    -apple-system, BlinkMacSystemFont, 'Inter Variable', 'Inter', 'Segoe UI', system-ui,
+    sans-serif;
   --font-mono: ui-monospace, 'SF Mono', 'Cascadia Code', Menlo, monospace;
 
-  /* Fluid Apple-scale type. Display is deliberately enormous. */
-  --text-display: clamp(3rem, 8vw, 7.5rem);
-  --text-display--line-height: 0.94;
-  --text-display--letter-spacing: -0.045em;
+  /*
+   * Fewer sizes, larger jumps between them, and tracking that tightens as the
+   * type grows — the way optical sizing behaves on Apple's own pages. The old
+   * scale topped out at 7.5rem with -0.045em, which at desktop widths set
+   * headlines so tight the counters closed up.
+   */
+  --text-display: clamp(2.75rem, 6.5vw, 5.5rem);
+  --text-display--line-height: 1.05;
+  --text-display--letter-spacing: -0.03em;
   --text-display--font-weight: 600;
 
-  --text-h1: clamp(2.25rem, 5vw, 4.5rem);
-  --text-h1--line-height: 1.03;
-  --text-h1--letter-spacing: -0.035em;
+  --text-h1: clamp(2.125rem, 4.2vw, 3.25rem);
+  --text-h1--line-height: 1.08;
+  --text-h1--letter-spacing: -0.025em;
   --text-h1--font-weight: 600;
 
-  --text-h2: clamp(1.75rem, 3.5vw, 3rem);
-  --text-h2--line-height: 1.1;
-  --text-h2--letter-spacing: -0.03em;
+  --text-h2: clamp(1.5rem, 2.4vw, 2.125rem);
+  --text-h2--line-height: 1.15;
+  --text-h2--letter-spacing: -0.02em;
   --text-h2--font-weight: 600;
 
-  --text-h3: clamp(1.25rem, 2vw, 1.75rem);
-  --text-h3--line-height: 1.2;
-  --text-h3--letter-spacing: -0.02em;
+  --text-h3: clamp(1.0625rem, 1.5vw, 1.3125rem);
+  --text-h3--line-height: 1.3;
+  --text-h3--letter-spacing: -0.012em;
   --text-h3--font-weight: 600;
 
   /* 17px is Apple's body measure. */
@@ -106,15 +152,20 @@
   --text-caption--line-height: 1.45;
   --text-caption--letter-spacing: 0;
 
+  /* Tracking eased from 0.14em: at 11px that read as a dashboard label rather
+     than a quiet eyebrow, and it is the one place the old design shouted. */
   --text-overline: 0.6875rem;
   --text-overline--line-height: 1.2;
-  --text-overline--letter-spacing: 0.14em;
-  --text-overline--font-weight: 600;
+  --text-overline--letter-spacing: 0.06em;
+  --text-overline--font-weight: 590;
 
   /* --- Radii ---------------------------------------------- */
-  --radius-card: 16px;
-  --radius-sheet: 20px;
-  --radius-hero: 28px;
+  /* Larger and softer. Apple's continuous corners are generous relative to
+     the element, which is what stops a rounded rectangle reading as a "card"
+     with a border implied around it. */
+  --radius-card: 20px;
+  --radius-sheet: 24px;
+  --radius-hero: 32px;
 
   /* --- Motion --------------------------------------------- */
   /* One curve for the entire product. */
@@ -122,10 +173,13 @@
   --ease-in-expo: cubic-bezier(0.7, 0, 0.84, 0);
 
   /* --- Elevation ------------------------------------------ */
-  --shadow-card: 0 1px 2px rgb(0 0 0 / 0.4), 0 8px 24px -12px rgb(0 0 0 / 0.6);
-  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.4), 0 24px 48px -20px rgb(0 0 0 / 0.8);
+  /* Restrained: against a true-black page a heavy drop shadow has nothing to
+     fall on and only muddies the edge. Elevation here is carried by surface
+     lightness, with the shadow doing very little. */
+  --shadow-card: 0 1px 3px rgb(0 0 0 / 0.5);
+  --shadow-lift: 0 8px 32px -12px rgb(0 0 0 / 0.7);
   --shadow-sheet: 0 32px 64px -16px rgb(0 0 0 / 0.9);
-  --shadow-glow: 0 0 48px -12px rgb(94 106 210 / 0.4);
+  --shadow-glow: 0 0 48px -12px rgb(10 132 255 / 0.35);
 
   /* --- Layout --------------------------------------------- */
   --container-page: 84rem;
@@ -152,24 +206,30 @@
      fg-tertiary  #6e6e73 -> 5.1:1 on card, 4.6:1 on base
    ============================================================ */
 :root[data-theme='light'] {
-  --color-deep: #fbfbfd;
+  --color-deep: #ffffff;
   --color-base: #f5f5f7;
   --color-card: #ffffff;
   --color-elevated: #ffffff;
   --color-raised: #f0f0f2;
 
-  --color-line: rgb(0 0 0 / 0.1);
-  --color-line-strong: rgb(0 0 0 / 0.16);
-  --color-line-glow: rgb(0 0 0 / 0.28);
+  --color-line: rgb(0 0 0 / 0.08);
+  --color-line-strong: rgb(0 0 0 / 0.14);
+  --color-line-glow: rgb(0 0 0 / 0.24);
 
   --color-fg: #1d1d1f;
   --color-fg-secondary: #515154;
   --color-fg-tertiary: #6e6e73;
 
-  /* Darkened so it still clears 4.5:1 against white surfaces. */
-  --color-accent: #4a56c4;
-  --color-accent-bright: #3b46a8;
-  --color-accent-dim: rgb(74 86 196 / 0.12);
+  /*
+   * Not Apple's #007AFF, and not apple.com's #0071E3 either. Measured against
+   * this palette both fail the project's AA floor for normal text — 4.02:1 and
+   * 4.31:1 on --color-base respectively. Apple does not hold that blue to
+   * WCAG AA; the 0-violation axe gate here does. #0068D6 is the lightest blue
+   * in the same family that clears it: 5.31:1 on white, 4.88:1 on base.
+   */
+  --color-accent: #0068d6;
+  --color-accent-bright: #0057b8;
+  --color-accent-dim: rgb(0 104 214 / 0.1);
 
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px -12px rgb(0 0 0 / 0.12);
   --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.06), 0 24px 48px -20px rgb(0 0 0 / 0.18);
@@ -178,30 +238,16 @@
   color-scheme: light;
 }
 
-/* Titanium: the one "expensive" gradient. Reserved for display
-   headings and key rules — never for body text or icons. */
-@utility text-titanium {
-  background-image: linear-gradient(135deg, #d6dae0 0%, #8a8f98 45%, #b8bcc4 100%);
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-}
-
-@utility rule-titanium {
-  background-image: linear-gradient(
-    90deg,
-    transparent,
-    rgb(214 218 224 / 0.35) 30%,
-    rgb(214 218 224 / 0.35) 70%,
-    transparent
-  );
-}
-
 /* Frosted surface used by nav, command palette, and sheets. */
+/* Frosted, and opaque enough to carry text over a bright photograph. At 0.62
+   a white subject scrolling underneath rendered the nav links unreadable. */
 @utility glass {
-  background-color: rgb(17 17 17 / 0.72);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  background-color: rgb(0 0 0 / 0.8);
+  /* Standard property only. Writing the -webkit- alias alongside it made the
+     minifier collapse the pair and emit *just* the prefixed one, which Firefox
+     does not implement — the nav lost its blur there entirely. Lightning CSS
+     adds whatever prefixes `build.cssTarget` calls for. */
+  backdrop-filter: blur(28px) saturate(180%);
 }
 
 /* ============================================================
@@ -214,42 +260,37 @@
    every existing utility unchanged.
    ============================================================ */
 .on-dark {
-  --color-deep: #020202;
-  --color-base: #111111;
-  --color-card: #181818;
-  --color-elevated: #1f1f1f;
-  --color-raised: #262626;
-  --color-line: rgb(255 255 255 / 0.08);
-  --color-line-strong: rgb(255 255 255 / 0.14);
-  --color-line-glow: rgb(255 255 255 / 0.22);
+  --color-deep: #000000;
+  --color-base: #0a0a0a;
+  --color-card: #1c1c1e;
+  --color-elevated: #242426;
+  --color-raised: #2c2c2e;
+
+  /*
+   * The ramp stops here for a measured reason. --color-fg-tertiary (#8a8a8f)
+   * clears 4.5:1 on surfaces up to #242426 and fails above it — 4.51:1 on
+   * `elevated`, 4.06:1 at #2c2c2e. A first attempt at this palette ran the
+   * ramp to #2c2c2e/#3a3a3c and axe caught the sticky header in Compare
+   * immediately.
+   *
+   * So: tertiary text is valid on deep, base, card and elevated. On `raised`
+   * — which exists for hover states — use fg-secondary or fg.
+   */
+  --color-line: rgb(255 255 255 / 0.06);
+  --color-line-strong: rgb(255 255 255 / 0.12);
+  --color-line-glow: rgb(255 255 255 / 0.2);
   --color-fg: #f5f5f7;
   --color-fg-secondary: #a1a1a6;
   --color-fg-tertiary: #8a8a8f;
+  /* The dark-mode blue, since this region is dark whatever the page theme. */
+  --color-accent: #0a84ff;
+  --color-accent-bright: #409cff;
 }
 
-/* Light-mode counterparts. The titanium gradient is built from light greys,
-   so on a white surface it must invert to dark or it disappears entirely. */
+/* Light-mode counterpart for the frosted nav surface. */
 :root[data-theme='light'] {
-  .text-titanium {
-    background-image: linear-gradient(135deg, #2c2c30 0%, #6e6e73 45%, #3a3a3e 100%);
-  }
-  .rule-titanium {
-    background-image: linear-gradient(
-      90deg,
-      transparent,
-      rgb(0 0 0 / 0.16) 30%,
-      rgb(0 0 0 / 0.16) 70%,
-      transparent
-    );
-  }
   .glass {
-    background-color: rgb(255 255 255 / 0.72);
-  }
-
-  /* Inside an always-dark region the surface is dark again, so the gradient
-     must revert to its light-grey form or it turns invisible. */
-  .on-dark .text-titanium {
-    background-image: linear-gradient(135deg, #d6dae0 0%, #8a8f98 45%, #b8bcc4 100%);
+    background-color: rgb(255 255 255 / 0.82);
   }
 }
 

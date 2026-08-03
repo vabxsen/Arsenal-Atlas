@@ -83,7 +83,7 @@ export function Nav() {
                 to={link.to}
                 className={({ isActive }) =>
                   cn(
-                    'relative inline-flex min-h-11 items-center rounded-full px-4 text-caption transition-colors duration-200',
+                    'relative inline-flex min-h-11 items-center px-3 text-caption transition-colors duration-200',
                     isActive ? 'text-fg' : 'text-fg-secondary hover:text-fg'
                   )
                 }
@@ -94,7 +94,7 @@ export function Nav() {
                     {isActive ? (
                       <motion.span
                         {...motionWhen(!prefersReduced, { layoutId: 'nav-active' })}
-                        className="absolute inset-0 -z-10 rounded-full bg-card"
+                        className="absolute inset-x-3 -bottom-0.5 h-px rounded-full bg-fg"
                         transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                       />
                     ) : null}
@@ -109,7 +109,7 @@ export function Nav() {
           <button
             type="button"
             onClick={openPalette}
-            className="inline-flex min-h-11 items-center gap-2 rounded-full border border-line bg-card px-4 text-caption text-fg-secondary transition-colors duration-200 hover:border-line-strong hover:text-fg"
+            className="inline-flex min-h-11 items-center gap-2 rounded-full bg-elevated px-4 text-caption text-fg-secondary transition-colors duration-200 hover:bg-raised hover:text-fg"
           >
             <Search size={16} aria-hidden="true" />
             {/* sr-only rather than hidden below sm: the label stays in the
@@ -121,7 +121,7 @@ export function Nav() {
                 ("click Search" must match the accessible name). */}
             <kbd
               aria-hidden="true"
-              className="ml-2 hidden rounded border border-line px-1.5 py-0.5 font-sans text-[0.6875rem] text-fg-tertiary lg:inline"
+              className="ml-2 hidden rounded bg-raised px-1.5 py-0.5 font-sans text-[0.6875rem] text-fg-secondary lg:inline"
             >
               ⌘K
             </kbd>

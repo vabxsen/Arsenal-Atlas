@@ -145,7 +145,7 @@ function Hero({ entries }: { entries: ListingEntry[] | undefined }) {
             <p className="text-overline uppercase text-fg-tertiary">
               An encyclopedia of military equipment
             </p>
-            <h1 className="mt-6 text-display text-titanium">
+            <h1 className="mt-6 text-display text-fg">
               Explore the World&rsquo;s Military Arsenal
             </h1>
             <p className="mt-8 max-w-[54ch] text-body text-fg-secondary">
@@ -236,27 +236,28 @@ function CategoryGrid() {
         <SectionHeading overline="By Type" title="Popular Categories" />
       </Reveal>
 
-      <RevealGroup className="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {/* Columns separated by space and a single hairline, not by nine bordered
+          panels each with its own fill. The group name does the dividing work
+          that the panel edge used to. */}
+      <div className="mt-12 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
         {groups.map(({ group, categories }) => (
-          <RevealItem key={group}>
-            <div className="h-full rounded-(--radius-card) border border-line bg-card p-6 transition-colors duration-300 hover:border-line-strong">
-              <h3 className="text-h3 text-fg">{group}</h3>
-              <ul className="mt-4 flex flex-wrap gap-2">
-                {categories.map((category) => (
-                  <li key={category.slug}>
-                    <Link
-                      to={`/category/${category.slug}`}
-                      className="inline-flex min-h-9 items-center rounded-full border border-line bg-base px-3 text-caption text-fg-secondary transition-colors duration-200 hover:border-line-strong hover:text-fg"
-                    >
-                      {category.name}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </RevealItem>
+          <div key={group}>
+            <h3 className="border-b border-line pb-3 text-h3 text-fg">{group}</h3>
+            <ul className="mt-4 flex flex-col">
+              {categories.map((category) => (
+                <li key={category.slug}>
+                  <Link
+                    to={`/category/${category.slug}`}
+                    className="flex min-h-10 items-center text-caption text-fg-secondary transition-colors duration-200 hover:text-fg"
+                  >
+                    {category.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         ))}
-      </RevealGroup>
+      </div>
     </Container>
   );
 }
@@ -276,12 +277,12 @@ function TechnologySpotlight({ entries }: { entries: ListingEntry[] }) {
         <SectionHeading overline="Technology Spotlight" title="Across the Centuries" />
       </Reveal>
 
-      <Reveal className="mt-10">
-        <div className="grid gap-6 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
+      <Reveal className="mt-12">
+        <div className="grid items-center gap-10 lg:grid-cols-[1fr_auto_1fr]">
           <EquipmentCard entry={oldest} />
           <div className="text-center">
-            <p className="tnum text-h1 text-titanium">{span}</p>
-            <p className="mt-2 text-overline uppercase text-fg-tertiary">Years apart</p>
+            <p className="tnum text-display text-fg">{span}</p>
+            <p className="mt-1 text-overline uppercase text-fg-tertiary">Years apart</p>
           </div>
           <EquipmentCard entry={latest} />
         </div>

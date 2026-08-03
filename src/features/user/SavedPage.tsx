@@ -39,7 +39,7 @@ export default function SavedPage() {
       <Container className="pt-20">
         <Reveal>
           <p className="text-overline uppercase text-fg-tertiary">Your Library</p>
-          <h1 className="mt-6 text-h1 text-titanium">Saved</h1>
+          <h1 className="mt-6 text-h1 text-fg">Saved</h1>
           <p className="mt-4 max-w-[56ch] text-body text-fg-secondary">
             {synced
               ? 'Synced to your account and available on any device.'
@@ -95,7 +95,7 @@ export default function SavedPage() {
                 <button
                   type="button"
                   onClick={clearRecentlyViewed}
-                  className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full border border-line px-4 text-caption text-fg-secondary transition-colors hover:border-line-strong hover:text-fg"
+                  className="inline-flex min-h-11 shrink-0 items-center gap-1.5 rounded-full bg-elevated px-4 text-caption text-fg-secondary transition-colors hover:bg-raised hover:text-fg"
                 >
                   <Trash2 size={14} aria-hidden="true" /> Clear
                 </button>
@@ -108,7 +108,7 @@ export default function SavedPage() {
               <RevealItem as="li" key={entry.id}>
                 <Link
                   to={`/equipment/${entry.slug}`}
-                  className="flex items-center gap-4 rounded-(--radius-card) border border-line bg-card p-3 transition-colors hover:border-line-strong"
+                  className="flex items-center gap-4 rounded-(--radius-card) bg-card p-3 transition-colors hover:bg-elevated"
                 >
                   <div className="size-12 shrink-0 overflow-hidden rounded-lg bg-base">
                     {entry.thumb ? (
@@ -147,7 +147,7 @@ function EmptyState({
   body: string;
 }) {
   return (
-    <div className="rounded-(--radius-card) border border-line bg-card px-6 py-16 text-center">
+    <div className="rounded-(--radius-card) bg-card px-6 py-16 text-center">
       <Icon size={28} className="mx-auto text-fg-tertiary" aria-hidden="true" />
       <p className="mt-4 text-h3 text-fg">{title}</p>
       <p className="mx-auto mt-2 max-w-[40ch] text-caption text-fg-secondary">{body}</p>
