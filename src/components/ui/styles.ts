@@ -39,7 +39,17 @@ export const SURFACE_MENU =
   'rounded-(--radius-sheet) bg-elevated shadow-(--shadow-sheet) ring-1 ring-line';
 
 /**
- * Monospace metadata — counts, years, index numerals, spec figures.
- * Pairs with `tnum`; see --text-data.
+ * Monospace metadata. Pairs with `tnum`; see --text-data.
+ *
+ * DATA_LABEL is for things that are genuinely labels — section numerals, stat
+ * captions, column heads — and uppercases them.
+ *
+ * DATA_VALUE is for anything containing a measurement, and deliberately does
+ * NOT uppercase, because unit case is semantic: `54 t` is tonnes and `54 T` is
+ * tesla, `km` is not `KM`, and a design that shouts its units is quietly
+ * misreporting them. It also keeps proper nouns readable — "Krauss-Maffei
+ * Wegmann" rather than "KRAUSS-MAFFEI WEGMANN".
  */
 export const DATA_LABEL = 'tnum font-mono text-data uppercase text-fg-tertiary';
+
+export const DATA_VALUE = 'tnum font-mono text-data text-fg-tertiary';

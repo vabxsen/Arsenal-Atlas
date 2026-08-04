@@ -200,8 +200,13 @@ export function manufacturerLabel(entry: Equipment): string | undefined {
 
   let name =
     String(raw)
+      // Unparsed wikitext. Five entries arrive as "[[Krauss-Maffei Wegmann"
+      // or "[[SIG Sauer#SIG Sauer" — a link the infobox parser opened and
+      // never closed, plus the anchor fragment behind a piped section link.
+      .replace(/\[\[|\]\]|'{2,}/g, '')
+      .split('#')[0]!
       .replace(/^[A-Za-z][\w ]{0,14}:\s*/, '')
-      .split(/[,;/&]/)[0]
+      .split(/[,;/&|]/)[0]
       ?.trim() ?? '';
 
   let previous: string;
