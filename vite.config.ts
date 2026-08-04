@@ -15,7 +15,22 @@ export default defineConfig({
     react(),
     tailwindcss(),
     VitePWA({
-      registerType: 'prompt',
+      /*
+       * autoUpdate, not prompt.
+       *
+       * `prompt` downloads the new worker and then waits for the app to tell
+       * it to activate — and no prompt UI was ever built, so nothing ever told
+       * it to. The practical effect was that a returning visitor kept the
+       * cached shell indefinitely and never saw a deploy at all: the only way
+       * to get the new build was a hard reload or unregistering the worker by
+       * hand. A deploy that is invisible to everyone who has already visited
+       * is not a deploy.
+       *
+       * `autoUpdate` sets skipWaiting and clientsClaim, so a new version takes
+       * over on the next navigation. For a reference site with no unsaved
+       * user state, there is nothing to interrupt.
+       */
+      registerType: 'autoUpdate',
       includeAssets: ['favicon.svg', 'robots.txt'],
       manifest: {
         name: 'Arsenal Atlas',
