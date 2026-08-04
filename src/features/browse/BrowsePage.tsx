@@ -26,16 +26,25 @@ export default function BrowsePage() {
 
   return (
     <div className="pb-32 pt-nav">
-      <Container className="pt-20">
-        <Reveal>
-          <p className="text-overline uppercase text-fg-tertiary">The Collection</p>
-          <h1 className="mt-6 max-w-[16ch] text-h1 text-fg">Browse the Arsenal</h1>
-          <p className="mt-6 max-w-[56ch] text-body text-fg-secondary">
-            {entries ? `${entries.length} entries` : 'Hundreds of entries'} across 44 categories,
-            from service pistols to nuclear-powered aircraft carriers.
-          </p>
-        </Reveal>
-      </Container>
+      {/* The field sits on its own layer behind the type, never on the element
+          that carries it — verify:contrast samples composited pixels behind
+          each text line, so a grid line crossing a glyph reads as background. */}
+      <div className="relative">
+        <div
+          aria-hidden="true"
+          className="field-grid pointer-events-none absolute inset-x-0 top-0 h-[26rem]"
+        />
+        <Container className="relative pt-20">
+          <Reveal>
+            <p className="text-overline uppercase text-fg-tertiary">The Collection</p>
+            <h1 className="mt-6 max-w-[16ch] text-h1 text-fg">Browse the Arsenal</h1>
+            <p className="mt-6 max-w-[56ch] text-body text-fg-secondary">
+              {entries ? `${entries.length} entries` : 'Hundreds of entries'} across 44 categories,
+              from service pistols to nuclear-powered aircraft carriers.
+            </p>
+          </Reveal>
+        </Container>
+      </div>
 
       {isLoading ? (
         <Container className="mt-20 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
