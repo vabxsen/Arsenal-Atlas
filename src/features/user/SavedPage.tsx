@@ -1,6 +1,5 @@
 import { Bookmark, Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
-import { Link } from 'react-router-dom';
 import { Reveal, RevealGroup, RevealItem } from '@/components/motion/Reveal';
 import { EquipmentCard } from '@/components/ui/EquipmentCard';
 import {
@@ -10,6 +9,7 @@ import {
   SectionHeading,
   Skeleton,
 } from '@/components/ui/primitives';
+import { DATA_VALUE } from '@/components/ui/styles';
 import { useListing, type ListingEntry } from '@/lib/data';
 import { useDocumentMeta } from '@/lib/seo';
 import { useAuth } from '@/features/auth/useAuth';
@@ -64,6 +64,13 @@ export default function SavedPage() {
               </>
             ) : null}
           </p>
+
+          {savedEntries.length > 0 ? (
+            <p className={`${DATA_VALUE} mt-8`}>
+              {savedEntries.length} saved
+              {recentEntries.length > 0 ? ` · ${recentEntries.length} recently viewed` : ''}
+            </p>
+          ) : null}
         </Reveal>
       </Container>
 
@@ -110,31 +117,14 @@ export default function SavedPage() {
             />
           </Reveal>
 
-          <RevealGroup as="ul" className="mt-8 grid gap-2" stagger={0.03}>
+          {/* The `row` card rather than a hand-rolled list item. It was a
+              bespoke thumbnail-and-two-lines row that predated the variant and
+              carried less: no role, no maker, no figure, and a raw <img> with
+              no srcset on a page the README says should never have one. */}
+          <RevealGroup as="ul" className="mt-8 grid gap-x-8 gap-y-3 sm:grid-cols-2" stagger={0.03}>
             {recentEntries.map((entry) => (
               <RevealItem as="li" key={entry.id}>
-                <Link
-                  to={`/equipment/${entry.slug}`}
-                  className="flex items-center gap-4 rounded-(--radius-card) bg-card p-3 transition-colors hover:bg-elevated"
-                >
-                  <div className="size-12 shrink-0 overflow-hidden rounded-lg bg-base">
-                    {entry.thumb ? (
-                      <img
-                        src={entry.thumb}
-                        alt=""
-                        loading="lazy"
-                        decoding="async"
-                        className="size-full object-cover"
-                      />
-                    ) : null}
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-[0.9375rem] text-fg">{entry.name}</p>
-                    <p className="truncate text-caption text-fg-tertiary">
-                      {entry.countries[0]?.name}
-                    </p>
-                  </div>
-                </Link>
+                <EquipmentCard entry={entry} variant="row" />
               </RevealItem>
             ))}
           </RevealGroup>

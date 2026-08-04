@@ -1,10 +1,11 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { Plus, X } from 'lucide-react';
+import { GitCompareArrows, Plus, X } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { Reveal } from '@/components/motion/Reveal';
 import { SmartImage } from '@/components/ui/Image';
-import { Container, Skeleton } from '@/components/ui/primitives';
+import { ButtonLink, Container, EmptyState, Skeleton } from '@/components/ui/primitives';
+import { DATA_LABEL, DATA_VALUE } from '@/components/ui/styles';
 import { cn } from '@/lib/cn';
 import { useListing } from '@/lib/data';
 import { sizedImage } from '@shared/images';
@@ -141,11 +142,12 @@ export default function ComparePage() {
         {loading ? (
           <Skeleton className="h-96 w-full" />
         ) : entries.length < 2 ? (
-          <div className="rounded-(--radius-card) bg-card p-12 text-center">
-            <p className="text-body text-fg-secondary">
-              Add at least two entries to see a comparison.
-            </p>
-          </div>
+          <EmptyState
+            icon={<GitCompareArrows size={28} aria-hidden="true" />}
+            title="Nothing to compare yet"
+            description="Add at least two entries. Every specification either carries is listed, and values that differ are marked."
+            action={<ButtonLink to="/browse">Find equipment</ButtonLink>}
+          />
         ) : (
           <div
             tabIndex={0}
@@ -158,7 +160,7 @@ export default function ComparePage() {
                 {/* Sticky header keeps the entry names visible while scrolling
                     a long specification list. */}
                 <tr className="sticky top-nav z-10 bg-elevated">
-                  <th scope="col" className="w-56 p-4 text-overline uppercase text-fg-secondary">
+                  <th scope="col" className={cn(DATA_LABEL, 'w-56 p-4 text-fg-secondary')}>
                     Specification
                   </th>
                   {entries.map((entry) => (
@@ -177,17 +179,19 @@ export default function ComparePage() {
 
                   return (
                     <tr key={label} className="border-t border-line">
-                      <th
-                        scope="row"
-                        className="p-4 align-top text-caption font-normal text-fg-tertiary"
-                      >
+                      {/* Mono, like every other data label in the product.
+                          A specification table is the one place the technical
+                          register is literally correct, and this was the only
+                          data surface still setting its labels in the UI face. */}
+                      <th scope="row" className={cn(DATA_LABEL, 'p-4 align-top font-normal')}>
                         {label}
                       </th>
                       {values.map((value, index) => (
                         <td
                           key={`${label}-${index}`}
                           className={cn(
-                            'tnum p-4 align-top text-[0.9375rem] transition-colors',
+                            DATA_VALUE,
+                            'p-4 align-top text-[0.8125rem] leading-relaxed transition-colors',
                             // Difference is marked with a tinted cell AND a
                             // left rule, so it does not rely on colour alone.
                             differs

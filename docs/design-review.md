@@ -77,8 +77,8 @@ worst pixel in the frame rather than the average; the dispatch blurb went 4.36
 | Countries | 9 | 9 | 9 | 9 | 9 | 9 | 9 | 9 | 9 |
 | Timeline | 9 | 9 | 9 | 9 | 9 | 9 | 9 | 9 | 9 |
 | Equipment detail | 9 | 9 | 9 | 10 | 10 | 9 | 9 | 9 | 9 |
-| **Compare** | 9 | 7 | 8 | 10 | 9 | 9 | 8 | 9 | **7** |
-| **Saved** | 9 | 7 | 8 | 8 | 9 | 9 | 8 | 9 | **8** |
+| Compare | 9 | 9 | 9 | 10 | 9 | 9 | 9 | 9 | 9 |
+| Saved | 9 | 9 | 9 | 9 | 9 | 9 | 9 | 9 | 9 |
 
 **Footer — information density 4 first pass.** It showed four of nine taxonomy
 groups and five categories each, so Aviation, Naval, Munitions, Soldier Systems
@@ -94,18 +94,25 @@ document.
 
 ---
 
-## Open: the two surfaces still below 9
+## Compare and Saved — the two that scored 7 first pass
 
-**Compare (originality 7, consistency 7)** and **Saved (originality 7)** did not
-receive the redesign. They inherited the new tokens, primitives, motion and card
-— so they are consistent in the small — but their compositions are untouched:
-Compare is still a slot grid over a diff table, Saved is still two stacked
-grids. Neither is broken and both pass every gate; they simply do not yet say
-anything the old design did not.
+Both had inherited the new tokens, primitives, motion and card, so they were
+consistent in the small while their compositions said nothing the old design
+did not.
 
-They are listed here rather than quietly scored 9, because the difference
-between "polished" and "reviewed" is whether the review is willing to name what
-was left.
+**Compare — consistency 7, originality 7.** A specification table is the one
+place in the product where the technical register is literally correct, and it
+was the last data surface still setting labels and values in the UI face. Both
+are monospace now. Its empty state was a hand-rolled panel with no way out of
+it, which is exactly what `EmptyState` was extracted for.
+
+**Saved — originality 7, density 8.** Recently Viewed was a bespoke
+thumbnail-and-two-lines row predating the `row` variant, carrying less than the
+card does — no role, no maker, no figure — and using a raw `<img>` with no
+srcset, on a page the README says should never have one. It uses the variant
+now, in two columns, and the header states what the page holds.
+
+Neither needed a new layout. What both needed was to stop being exceptions.
 
 ---
 
