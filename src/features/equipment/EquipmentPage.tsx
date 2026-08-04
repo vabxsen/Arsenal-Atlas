@@ -5,8 +5,10 @@ import { Link, useParams } from 'react-router-dom';
 import { Reveal, RevealGroup, RevealItem } from '@/components/motion/Reveal';
 import { SmartImage } from '@/components/ui/Image';
 import { Button, Chip, Container, SectionHeading, Skeleton } from '@/components/ui/primitives';
+import { DATA_VALUE } from '@/components/ui/styles';
 import { useEquipment, useFamilies, useListing } from '@/lib/data';
 import { conflictSlug } from '@shared/conflicts';
+import { headlineSpec, manufacturerLabel } from '@shared/headline';
 import { HERO_MAX_WIDTH, heroFit, sizedImage } from '@shared/images';
 import { useDocumentMeta } from '@/lib/seo';
 import { getCategory } from '@shared/taxonomy';
@@ -214,16 +216,31 @@ function Detail({ entry }: { entry: Equipment }) {
               <p className="mt-4 max-w-[60ch] text-body text-fg-secondary">{entry.subcategory}</p>
             ) : null}
 
-            <ul className="mt-6 flex flex-wrap gap-2">
-              {entry.countries.map((country) => (
-                <Chip as="li" key={country.name}>
-                  {country.name}
-                </Chip>
-              ))}
-              {entry.serviceStart ? <Chip as="li">In service {entry.serviceStart}</Chip> : null}
-              {entry.gallery.length > 0 ? (
-                <Chip as="li">{entry.gallery.length} images</Chip>
-              ) : null}
+            {/*
+              An instrument strip rather than a row of pills.
+              This is the page every card on the site leads to, and it opened
+              with three lozenges — the idiom the redesign removed everywhere
+              else. Reading the same facts in the same monospace as the card
+              the visitor just clicked is what makes the transition feel like
+              one product rather than two screens.
+
+              Same derivations as the card, called directly on the full entry:
+              a detail page already has the document, so nothing is refetched.
+            */}
+            <ul className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-2">
+              {[
+                entry.countries.map((country) => country.name).join(' · '),
+                entry.serviceStart ? `In service ${entry.serviceStart}` : undefined,
+                manufacturerLabel(entry),
+                headlineSpec(entry)?.value,
+                entry.gallery.length > 0 ? `${entry.gallery.length} images` : undefined,
+              ]
+                .filter(Boolean)
+                .map((fact) => (
+                  <li key={fact} className={DATA_VALUE}>
+                    {fact}
+                  </li>
+                ))}
             </ul>
 
             <div className="mt-8 flex flex-wrap items-center gap-3 no-print">
