@@ -21,7 +21,7 @@ warm); it also regenerates the gitignored `data/` blob that `npm run push` consu
 | Command | What it does |
 |---|---|
 | `npm run dev` | Vite dev server |
-| `npm run build` | Typecheck, build, then prerender 532 route shells + sitemap |
+| `npm run build` | Typecheck, build, then prerender 718 route shells + sitemap |
 | `npm run preview` | Serve `dist/` on :4173 |
 | `npm run seed` | Fetch, normalise, validate, and export the corpus |
 | `npm run push` | Push the corpus into Firestore (emulator by default) |
@@ -30,6 +30,8 @@ warm); it also regenerates the gitignored `data/` blob that `npm run push` consu
 | `npm run test:rules` | Exercise the admin write path through `firestore.rules` (needs emulators) |
 | `npm run verify:bundle` | Assert Firebase and admin stay out of the entry chunk and precache |
 | `npm run verify:contrast` | Measure text-on-photograph contrast (needs `preview` running) |
+| `npm run verify:responsive` | Assert no route scrolls sideways at 390px or 768px (needs `preview`) |
+| `npm run verify:tokens` | Assert the palette has not drifted across its three declarations |
 | `npm run verify:images` | Check prerendered og:image URLs resolve on the Commons CDN |
 | `npm run emulators` | Firebase Auth + Firestore emulators |
 | `npm run lint` / `npm run typecheck` | ESLint (zero warnings) / `tsc --noEmit` |
@@ -78,30 +80,56 @@ host, so responsive sizing is the only lever available on image weight.
 
 ## Design language
 
-Minimal, image-led, near-monochrome. Content sits on the page surface and is separated by
-space; a filled panel or a border is the exception rather than the default container.
-
-This replaced an outlined-grey-card idiom that had accumulated **125 border utilities, 66
-filled panels and 41 pill shapes** across `src/` — every section boxed, every control a
-lozenge, which reads as a dashboard rather than a reference work. Three specific things were
-doing the most damage: page `<h1>`s rendered through a grey gradient (`text-titanium`, now
-retired) so the primary heading was duller than the section headings beneath it; category
-covers held at `opacity-20` under a near-opaque wash, turning the browse grid into grey
-rectangles; and an accent inherited from a generic dark template.
+Minimal, image-led, near-monochrome — a reference work rather than a dashboard. Content sits
+on the page surface and is separated by space; a filled panel or a border is the exception.
+On top of that sits a technical register: monospace metadata, mono index numerals, and a
+blueprint field at the threshold of visibility.
 
 Load-bearing decisions:
 
-**The elevation ramp stops at `#242426`.** `--color-fg-tertiary` (`#8a8a8f`) clears 4.5:1 on
-surfaces up to that value and fails above it — 4.51:1 on `elevated`, 4.06:1 at `#2c2c2e`. A
-first pass ran the ramp to `#2c2c2e`/`#3a3a3c` and axe caught the sticky header in Compare
-immediately. Tertiary text is valid on `deep`, `base`, `card` and `elevated`; on `raised`,
-which exists for hover states, use `fg-secondary`.
+**Nine homepage sections, nine layouts.** Four of them used to be the same `Rail` component
+— an identical four-column grid rendered four times down one page. However good the tiles
+were, the eye learns a shape once and then stops reading. The cure is mixed aspect ratios and
+mixed densities, which is why `EquipmentCard` has six variants; exactly one section (the
+category ledger) has no photography, so the eye has somewhere to rest.
 
-**The accent is not Apple's `#007AFF`.** Measured against this palette both it (4.02:1) and
-apple.com's `#0071E3` (4.31:1 on `--color-base`) fail the AA floor for normal text. Apple
-does not hold that blue to WCAG; the 0-violation axe gate here does. Light mode uses
-`#0068D6`, the lightest blue in the same family that clears it. Dark mode uses `#0A84FF`,
-which is fine at 5.76:1 on black.
+**`--color-deep` and `--color-scrim` are different tokens.** One token used to be both the
+page background and the source colour of every gradient over a photograph. The page is now
+`#090909` — the technical grid needs a floor to sit on, and at true black the hairlines
+shimmer against an absolute zero — while the scrim stays `#000000` and is deliberately absent
+from the light theme and from `.on-dark`, because it is theme-invariant by definition.
+Lightening them together would have moved all twenty text-over-photography assertions for a
+difference no eye can see through a photograph.
+
+**The ramp has no illegal surface.** `--color-fg-tertiary` (`#8a8a8f`) used to fail on
+`raised` (`#2c2c2e`, 4.06:1) — a landmine axe caught once in Compare's sticky header, and one
+every contributor then had to remember. The ramp is that one shifted down a step, so `raised`
+is `#242426` where tertiary measures 4.51:1. Do not lighten it further without re-measuring;
+4.51 is the floor, not a margin.
+
+**The accent is steel blue, not iOS blue.** Same single job — interactive, nothing decorative
+— and safer at every step than the `#0A84FF` it replaces: 6.39:1 on `card` against 4.66, and
+5.42:1 on `raised` where the old blue actually failed at 3.82:1. Light mode is `#2A6A99`. The
+note that outlived the old palette still holds: Apple's `#007AFF` (4.02:1) and apple.com's
+`#0071E3` (4.31:1) both fail here, because Apple does not hold that blue to WCAG AA and the
+0-violation axe gate does.
+
+**Materials encode data, never interaction.** `--color-olive`, `--color-steel` and
+`--color-titanium` are a second, orthogonal dimension: chart and map fills, ticks,
+proportional bars. Never a link colour, never a focus ring. Olive is never a filled
+background under text — as a fill it needs a dark foreground, and dark mode has no such
+token, so it appears as a wash at ≤20% opacity or a mark ≤4px.
+
+**Unit case is semantic.** `DATA_LABEL` uppercases and is for things that are genuinely
+labels; `DATA_VALUE` does not, and is for anything containing a measurement. `54 t` is tonnes
+and `54 T` is tesla; `1860s` is a decade and `1860S` is nothing. A design that shouts its
+units is quietly misreporting them.
+
+**Card metadata degrades by omission.** `role`, `manufacturer` and `spec` are present on 345,
+354 and 369 of 482 entries, and a card missing one renders one fewer line — never a dash,
+never an empty badge. The lines are assembled by filtering arrays rather than by conditional
+JSX per field, because the conditional version accumulates separators with nothing between
+them.
 
 **Photographic tiles carry `.on-dark`.** Their scrim is built from `--color-deep`, which
 inverts to white in light mode — that would wash the photograph out and leave dark text
@@ -161,7 +189,8 @@ uploading it is a privacy cost with little user benefit.
 
 Themes are `dark` (canonical) / `light` / `system`. The resolved theme is applied by a
 blocking inline script in `index.html` before first paint; doing it in React would flash the
-wrong theme on every load. Both themes are contrast-audited in CI via `npm run a11y`.
+wrong theme on every load. Both themes are contrast-audited via `npm run a11y`, which is run
+by hand — there is no CI here, so every gate is opt-in.
 
 ## Architecture
 
