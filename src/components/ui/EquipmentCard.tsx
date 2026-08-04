@@ -18,7 +18,7 @@ import { DATA_VALUE } from './styles';
  * a caption for it, which is why a grid of these reads as a gallery rather
  * than a table of boxes.
  *
- * Five variants, because four homepage sections rendering the identical
+ * Six variants, because four homepage sections rendering the identical
  * four-column tile is the single loudest reason the page read as a template:
  * the eye learns the shape once and then stops reading.
  *
@@ -53,19 +53,18 @@ export function EquipmentCard({
   const category = getCategory(entry.category);
   const country = entry.countries[0]?.name;
 
-  const overImage = variant === 'feature' || variant === 'editorial';
+  const overImage = variant === 'feature' || variant === 'editorial' || variant === 'portrait';
   const isRow = variant === 'row';
 
   /*
    * Line one is provenance: what it is, where it came from, when. `role` wins
    * over the category when present — "Bullpup assault rifle" says more than
    * "Assault Rifles", and the category is usually how the visitor arrived.
+   * Line two is technical, and most often has nothing in it, so the whole line
+   * is gated on the array rather than each part.
    *
-   * Line two is technical, and it is the one that most often has nothing in
-   * it, so the whole line is gated on the array rather than each part.
-   */
-  /*
-   * `compact` is a 176px column in a carousel, and the full provenance line
+   * `compact` is the exception. It is a 176px column in a carousel, and the
+   * full provenance line
    * ("Close air support attack aircraft · United States · 1977") wrapped to
    * three lines there — the variant that exists to be dense was the tallest
    * thing on the page. It gets origin and year only, and no technical line.

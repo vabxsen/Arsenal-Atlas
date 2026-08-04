@@ -16,6 +16,8 @@ export type CardVariant =
   | 'default'
   /** The lead of an editorial block: 3:2, title set over the image. */
   | 'feature'
+  /** Tall plate, 4:5, title over the image. The magazine spread's anchor. */
+  | 'portrait'
   /** Square thumb, tight metadata. Horizontal carousels. */
   | 'compact'
   /** Landscape thumb beside stacked text. Sidebars beside a feature. */
@@ -30,6 +32,7 @@ export type CardVariant =
 export const CARD_ASPECT: Record<CardVariant, string> = {
   default: 'aspect-16/10',
   feature: 'aspect-3/2',
+  portrait: 'aspect-4/5',
   compact: 'aspect-square',
   row: 'aspect-4/3',
   editorial: 'aspect-21/9',
@@ -42,6 +45,7 @@ export const CARD_ASPECT: Record<CardVariant, string> = {
 export const CARD_SIZES: Record<CardVariant, string> = {
   default: '(min-width: 1024px) 24rem, (min-width: 640px) 45vw, 90vw',
   feature: '(min-width: 1024px) 46rem, 92vw',
+  portrait: '(min-width: 1024px) 26rem, 92vw',
   compact: '(min-width: 640px) 15rem, 45vw',
   row: '(min-width: 1024px) 12rem, 30vw',
   editorial: '(min-width: 1024px) 72rem, 96vw',
@@ -53,6 +57,7 @@ export const CARD_SIZES: Record<CardVariant, string> = {
 export const CARD_FRAME: Record<CardVariant, string> = {
   default: 'group relative',
   feature: 'group relative',
+  portrait: 'group relative',
   compact: 'group relative',
   row: 'group relative',
   editorial: 'group relative',
@@ -72,6 +77,7 @@ export const CARD_CAPTION: Record<CardVariant, string> = {
   // so it is alignment rather than a shift.
   default: 'pt-4 min-h-[4.75rem]',
   feature: 'absolute inset-x-0 bottom-0 p-6 sm:p-8',
+  portrait: 'absolute inset-x-0 bottom-0 p-6',
   compact: 'pt-3',
   row: 'min-w-0 flex-1',
   editorial: 'absolute inset-x-0 bottom-0 p-6 sm:p-10',
@@ -81,6 +87,7 @@ export const CARD_CAPTION: Record<CardVariant, string> = {
 export const CARD_TITLE: Record<CardVariant, string> = {
   default: 'text-h3',
   feature: 'text-h2',
+  portrait: 'text-h3',
   compact: 'text-[0.9375rem] font-medium leading-snug',
   row: 'text-[0.9375rem] font-medium leading-snug',
   editorial: 'text-h2',

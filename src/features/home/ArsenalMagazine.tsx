@@ -44,10 +44,11 @@ export function ArsenalMagazine({ entries }: { entries: ListingEntry[] }) {
       </Reveal>
 
       <RevealGroup className="mt-10 grid gap-6 lg:grid-cols-12">
-        {/* The portrait plate. `row` gives a 4:3 frame; the column it sits in
-            is narrow, so it reads as the tall element of the spread. */}
+        {/* The tall plate. 4:5 against the 16:10 tiles beside it — without a
+            genuinely different ratio the spread was three equal columns, which
+            is the uniformity this section exists to break. */}
         <RevealItem className="lg:col-span-4">
-          <EquipmentCard entry={portrait} variant="feature" />
+          <EquipmentCard entry={portrait} variant="portrait" />
         </RevealItem>
 
         <div className="grid gap-6 sm:grid-cols-2 lg:col-span-5">
