@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Reveal, RevealGroup, RevealItem } from '@/components/motion/Reveal';
 import { Container, SectionHeading, Skeleton } from '@/components/ui/primitives';
+import { categoryCounts, corpusStats } from '@/lib/aggregates';
 import { useListing } from '@/lib/data';
 import { sizedImage, wikimediaSrcSet } from '@shared/images';
 import { useDocumentMeta } from '@/lib/seo';
@@ -16,10 +17,10 @@ export default function BrowsePage() {
     canonical: '/browse',
   });
 
-  const counts = new Map<string, number>();
+  const counts = categoryCounts(entries ?? []);
+  const stats = corpusStats(entries ?? []);
   const covers = new Map<string, { url: string; width?: number | undefined }>();
   for (const entry of entries ?? []) {
-    counts.set(entry.category, (counts.get(entry.category) ?? 0) + 1);
     if (entry.hero && !covers.has(entry.category))
       covers.set(entry.category, { url: entry.hero, width: entry.heroWidth });
   }
@@ -38,9 +39,14 @@ export default function BrowsePage() {
           <Reveal>
             <p className="text-overline uppercase text-fg-tertiary">The Collection</p>
             <h1 className="mt-6 max-w-[16ch] text-h1 text-fg">Browse the Arsenal</h1>
+            {/* Both figures are derived. The category count used to be the
+                literal "44" — correct when it was typed, and a claim nobody
+                would notice going stale. */}
             <p className="mt-6 max-w-[56ch] text-body text-fg-secondary">
-              {entries ? `${entries.length} entries` : 'Hundreds of entries'} across 44 categories,
-              from service pistols to nuclear-powered aircraft carriers.
+              {entries
+                ? `${stats.entries} entries across ${stats.categories} categories`
+                : 'Hundreds of entries'}
+              , from service pistols to nuclear-powered aircraft carriers.
             </p>
           </Reveal>
         </Container>

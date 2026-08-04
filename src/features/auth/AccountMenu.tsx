@@ -3,6 +3,7 @@ import { Bookmark, LogOut, Monitor, Moon, ShieldCheck, Sun, User as UserIcon } f
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/cn';
+import { DURATION, EASE_OUT_EXPO } from '@/lib/motion';
 import { useTheme, type ThemePreference } from '@/features/theme/useTheme';
 import { useFavorites } from '@/features/user/collections';
 import { useAuth } from './useAuth';
@@ -75,7 +76,7 @@ export function AccountMenu() {
             initial={{ opacity: 0, y: -6, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -4, scale: 0.99 }}
-            transition={{ duration: 0.2, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: DURATION.fast, ease: EASE_OUT_EXPO }}
             className="absolute right-0 top-full z-50 mt-2 w-64 overflow-hidden rounded-(--radius-sheet) border border-line-strong bg-elevated shadow-(--shadow-sheet)"
           >
             <div className="border-b border-line p-4">

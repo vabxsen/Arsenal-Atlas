@@ -1,13 +1,11 @@
 import { useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Reveal, RevealGroup, RevealItem } from '@/components/motion/Reveal';
-import { Container, SectionHeading, Skeleton } from '@/components/ui/primitives';
-import { cn } from '@/lib/cn';
-import { useListing, type ListingEntry } from '@/lib/data';
+import { Container, FilterPill, SectionHeading, Skeleton } from '@/components/ui/primitives';
+import { decadeBuckets } from '@/lib/aggregates';
+import { useListing } from '@/lib/data';
 import { sizedImage } from '@shared/images';
 import { useDocumentMeta } from '@/lib/seo';
-
-const DECADE = 10;
 
 export default function TimelinePage() {
   const { data: entries, isLoading } = useListing();
@@ -20,22 +18,14 @@ export default function TimelinePage() {
     canonical: '/timeline',
   });
 
-  const decades = useMemo(() => {
-    const buckets = new Map<number, ListingEntry[]>();
-    for (const entry of entries ?? []) {
-      if (!entry.serviceStart || entry.serviceStart < 1800) continue;
-      const decade = Math.floor(entry.serviceStart / DECADE) * DECADE;
-      const bucket = buckets.get(decade);
-      if (bucket) bucket.push(entry);
-      else buckets.set(decade, [entry]);
-    }
-    return [...buckets.entries()]
-      .sort((a, b) => a[0] - b[0])
-      .map(([decade, items]) => ({
+  const decades = useMemo(
+    () =>
+      decadeBuckets(entries ?? []).map(({ decade, entries: items }) => ({
         decade,
         items: items.sort((a, b) => (a.serviceStart ?? 0) - (b.serviceStart ?? 0)),
-      }));
-  }, [entries]);
+      })),
+    [entries]
+  );
 
   const visible = activeDecade
     ? decades.filter((bucket) => bucket.decade === activeDecade)
@@ -68,37 +58,21 @@ export default function TimelinePage() {
             role="group"
             aria-label="Filter timeline by decade"
           >
-            <button
-              type="button"
-              onClick={() => setActiveDecade(null)}
-              aria-pressed={activeDecade === null}
-              className={cn(
-                'inline-flex min-h-11 items-center rounded-full border px-4 text-caption transition-colors',
-                activeDecade === null
-                  ? 'border-line-glow bg-elevated text-fg'
-                  : 'border-line bg-card text-fg-secondary hover:text-fg'
-              )}
-            >
+            <FilterPill active={activeDecade === null} onClick={() => setActiveDecade(null)}>
               All
-            </button>
+            </FilterPill>
             {decades.map((bucket) => (
-              <button
+              <FilterPill
                 key={bucket.decade}
-                type="button"
+                active={activeDecade === bucket.decade}
                 onClick={() =>
                   setActiveDecade(activeDecade === bucket.decade ? null : bucket.decade)
                 }
-                aria-pressed={activeDecade === bucket.decade}
-                className={cn(
-                  'tnum inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-caption transition-colors',
-                  activeDecade === bucket.decade
-                    ? 'border-line-glow bg-elevated text-fg'
-                    : 'border-line bg-card text-fg-secondary hover:text-fg'
-                )}
+                className="tnum"
               >
                 {bucket.decade}s
                 <span className="text-fg-tertiary">{bucket.items.length}</span>
-              </button>
+              </FilterPill>
             ))}
           </div>
         </Reveal>

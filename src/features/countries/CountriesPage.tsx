@@ -3,8 +3,7 @@ import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Reveal, RevealGroup, RevealItem } from '@/components/motion/Reveal';
 import { EquipmentCard } from '@/components/ui/EquipmentCard';
-import { Container, SectionHeading, Skeleton } from '@/components/ui/primitives';
-import { cn } from '@/lib/cn';
+import { Container, FilterPill, SectionHeading, Skeleton } from '@/components/ui/primitives';
 import { countryCounts, useListing } from '@/lib/data';
 import { useDocumentMeta } from '@/lib/seo';
 import { WorldMap } from './WorldMap';
@@ -111,20 +110,13 @@ export default function CountriesPage() {
           <ul className="mt-8 flex flex-wrap gap-2">
             {ranked.map((country) => (
               <li key={country.iso3}>
-                <button
-                  type="button"
+                <FilterPill
+                  active={country.iso3 === selected}
                   onClick={() => select(country.iso3 === selected ? null : country.iso3)}
-                  aria-pressed={country.iso3 === selected}
-                  className={cn(
-                    'inline-flex min-h-11 items-center gap-2 rounded-full border px-4 text-caption transition-colors duration-200',
-                    country.iso3 === selected
-                      ? 'border-line-glow bg-elevated text-fg'
-                      : 'border-line bg-card text-fg-secondary hover:border-line-strong hover:text-fg'
-                  )}
                 >
                   {country.name}
                   <span className="tnum text-fg-tertiary">{country.count}</span>
-                </button>
+                </FilterPill>
               </li>
             ))}
           </ul>

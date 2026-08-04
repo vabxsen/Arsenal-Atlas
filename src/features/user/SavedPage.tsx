@@ -1,9 +1,15 @@
-import { Bookmark, Trash2, type LucideIcon } from 'lucide-react';
+import { Bookmark, Trash2 } from 'lucide-react';
 import { useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { Reveal, RevealGroup, RevealItem } from '@/components/motion/Reveal';
 import { EquipmentCard } from '@/components/ui/EquipmentCard';
-import { Container, SectionHeading, Skeleton } from '@/components/ui/primitives';
+import {
+  ButtonLink,
+  Container,
+  EmptyState,
+  SectionHeading,
+  Skeleton,
+} from '@/components/ui/primitives';
 import { useListing, type ListingEntry } from '@/lib/data';
 import { useDocumentMeta } from '@/lib/seo';
 import { useAuth } from '@/features/auth/useAuth';
@@ -70,9 +76,10 @@ export default function SavedPage() {
           </div>
         ) : savedEntries.length === 0 ? (
           <EmptyState
-            Icon={Bookmark}
+            icon={<Bookmark size={28} aria-hidden="true" />}
             title="Nothing saved yet"
-            body="Use the bookmark button on any entry to keep it here."
+            description="Use the bookmark button on any entry to keep it here."
+            action={<ButtonLink to="/browse">Browse equipment</ButtonLink>}
           />
         ) : (
           <RevealGroup className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3" stagger={0.04}>
@@ -137,26 +144,3 @@ export default function SavedPage() {
   );
 }
 
-function EmptyState({
-  Icon,
-  title,
-  body,
-}: {
-  Icon: LucideIcon;
-  title: string;
-  body: string;
-}) {
-  return (
-    <div className="rounded-(--radius-card) bg-card px-6 py-16 text-center">
-      <Icon size={28} className="mx-auto text-fg-tertiary" aria-hidden="true" />
-      <p className="mt-4 text-h3 text-fg">{title}</p>
-      <p className="mx-auto mt-2 max-w-[40ch] text-caption text-fg-secondary">{body}</p>
-      <Link
-        to="/browse"
-        className="mt-8 inline-flex min-h-11 items-center rounded-full bg-fg px-6 text-[0.9375rem] font-medium text-deep transition-colors hover:bg-white"
-      >
-        Browse equipment
-      </Link>
-    </div>
-  );
-}

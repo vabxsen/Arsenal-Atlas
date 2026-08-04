@@ -87,12 +87,69 @@ export const heroReveal: Variants = {
   },
 };
 
+/**
+ * A rule drawing itself in — the timeline scale, a section divider.
+ *
+ * Requires `transform-origin` on the element, and it must be set in
+ * `className` rather than as a motion prop: under reduced motion this variant
+ * is swapped for an opacity-only mirror that never touches transform, and an
+ * origin passed through `style` would then be describing an axis nothing uses.
+ */
+export const drawIn: Variants = {
+  hidden: { scaleX: 0, opacity: 0 },
+  visible: {
+    scaleX: 1,
+    opacity: 1,
+    transition: { duration: DURATION.cinematic, ease: EASE_OUT_EXPO },
+  },
+};
+
+/**
+ * Wipes content in behind a moving edge instead of fading it.
+ *
+ * `clip-path` is composited and never triggers layout, so this is safe on
+ * headings and images alike — but it does create a stacking context, so it
+ * cannot wrap something that needs to escape its bounds (a dropdown, a
+ * sticky child).
+ */
+export const revealMask: Variants = {
+  hidden: { clipPath: 'inset(0 100% 0 0)' },
+  visible: {
+    clipPath: 'inset(0 0% 0 0)',
+    transition: { duration: DURATION.slow, ease: EASE_OUT_EXPO },
+  },
+};
+
+/**
+ * The house hover transition.
+ *
+ * Six components wrote their transition out by hand, between them using five
+ * different durations — 0.2, 0.3, 0.32, 0.35, 0.4 — against a scale that
+ * offers `fast` 0.24 and `base` 0.4. Each looked deliberate on its own, which
+ * is exactly why the drift survived review: nobody compares a dropdown in one
+ * file against a lightbox in another.
+ *
+ * Two speeds now. Hover and layout feedback run at `base`; anything that
+ * opens over the page — popover, dialog, lightbox — runs at `fast`, because a
+ * surface the user just asked for should already be there.
+ */
+export const TRANSITION_HOVER: Transition = { duration: DURATION.base, ease: EASE_OUT_EXPO };
+
 // ── Reduced motion ────────────────────────────────────────────
 
-/** Opacity-only mirrors. Structure matches the variants above exactly. */
+/**
+ * Opacity-only mirrors. Structure matches the variants above exactly.
+ *
+ * Every variant exported from this file needs an entry here, or
+ * `resolveVariants` silently falls through to `fadeUp` — which for something
+ * like `drawIn` means a rule that was meant to draw itself in instead pops to
+ * full width while fading, i.e. the exact motion the preference asked to avoid.
+ */
 const reduced: Record<string, Variants> = {
   fadeUp: { hidden: { opacity: 0 }, visible: { opacity: 1 }, exit: { opacity: 0 } },
   heroReveal: { hidden: { opacity: 0 }, visible: { opacity: 1 } },
+  drawIn: { hidden: { opacity: 0 }, visible: { opacity: 1 } },
+  revealMask: { hidden: { opacity: 0 }, visible: { opacity: 1 } },
 };
 
 /**

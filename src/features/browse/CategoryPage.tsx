@@ -2,8 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { Reveal, RevealGroup, RevealItem } from '@/components/motion/Reveal';
 import { EquipmentCard } from '@/components/ui/EquipmentCard';
-import { Container, Skeleton } from '@/components/ui/primitives';
-import { cn } from '@/lib/cn';
+import { Button, Container, EmptyState, FilterPill, Skeleton } from '@/components/ui/primitives';
 import { byCategory, useListing } from '@/lib/data';
 import { useDocumentMeta } from '@/lib/seo';
 import { getCategory } from '@shared/taxonomy';
@@ -92,20 +91,13 @@ export default function CategoryPage() {
           <div className="flex flex-wrap items-center gap-6">
             <div className="flex items-center gap-2" role="group" aria-label="Sort entries">
               {SORTS.map((option) => (
-                <button
+                <FilterPill
                   key={option.key}
-                  type="button"
+                  active={sort === option.key}
                   onClick={() => setSort(option.key)}
-                  aria-pressed={sort === option.key}
-                  className={cn(
-                    'inline-flex min-h-11 items-center rounded-full border px-4 text-caption transition-colors duration-200',
-                    sort === option.key
-                      ? 'border-line-glow bg-elevated text-fg'
-                      : 'border-line bg-card text-fg-secondary hover:text-fg'
-                  )}
                 >
                   {option.label}
-                </button>
+                </FilterPill>
               ))}
             </div>
 
@@ -138,20 +130,23 @@ export default function CategoryPage() {
             ))}
           </div>
         ) : items.length === 0 ? (
-          <div className="rounded-(--radius-card) bg-card p-12 text-center">
-            <p className="text-body text-fg-secondary">
-              No entries match this filter yet.
-            </p>
-            {country ? (
-              <button
-                type="button"
-                onClick={() => setCountry(null)}
-                className="mt-4 text-caption text-fg underline underline-offset-4"
-              >
-                Clear the country filter
-              </button>
-            ) : null}
-          </div>
+          <EmptyState
+            title="No entries match this filter"
+            description={
+              country
+                ? 'This category has entries, but none from the selected country of origin.'
+                : undefined
+            }
+            {...(country
+              ? {
+                  action: (
+                    <Button variant="secondary" onClick={() => setCountry(null)}>
+                      Clear the country filter
+                    </Button>
+                  ),
+                }
+              : {})}
+          />
         ) : (
           <RevealGroup
             className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3"

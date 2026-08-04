@@ -3,6 +3,7 @@ import { Clock, CornerDownLeft, Search, TrendingUp } from 'lucide-react';
 import { useCallback, useEffect, useId, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/cn';
+import { DURATION, EASE_OUT_EXPO } from '@/lib/motion';
 import { sizedImage } from '@shared/images';
 import { getCategory } from '@shared/taxonomy';
 import type { SearchEntry } from '@shared/schema';
@@ -132,7 +133,7 @@ function PaletteDialog({ prefersReduced }: { prefersReduced: boolean }) {
 
       <motion.div
         {...motionProps}
-        transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: DURATION.fast, ease: EASE_OUT_EXPO }}
         role="dialog"
         aria-modal="true"
         aria-label="Search equipment"

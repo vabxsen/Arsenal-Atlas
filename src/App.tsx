@@ -9,6 +9,7 @@ import { useCommandPaletteShortcut } from '@/features/search/store';
 import { AuthProvider } from '@/features/auth/AuthProvider';
 import { HomePage } from '@/features/home/HomePage';
 import { Skeleton } from '@/components/ui/primitives';
+import { DURATION, EASE_OUT_EXPO } from '@/lib/motion';
 
 /**
  * Routes below the fold of the first paint are code-split. Home is bundled
@@ -111,7 +112,10 @@ function AnimatedRoutes() {
         animate="animate"
         exit="exit"
         variants={variants}
-        transition={{ duration: prefersReduced ? 0.15 : 0.35, ease: [0.16, 1, 0.3, 1] }}
+        transition={{
+          duration: prefersReduced ? DURATION.instant : DURATION.base,
+          ease: EASE_OUT_EXPO,
+        }}
       >
         <Suspense fallback={<PageFallback />}>
           <Routes location={location}>

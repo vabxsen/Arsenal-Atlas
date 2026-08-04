@@ -2,6 +2,7 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { ChevronLeft, ChevronRight, X, ZoomIn, ZoomOut } from 'lucide-react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
+import { DURATION, EASE_OUT_EXPO } from '@/lib/motion';
 import { sizedImage } from '@shared/images';
 import type { ImageRef } from '@shared/schema';
 
@@ -172,7 +173,7 @@ export function GalleryViewer({
             initial={prefersReduced ? { opacity: 0 } : { opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: zoomed ? 1.5 : 1 }}
             exit={prefersReduced ? { opacity: 0 } : { opacity: 0, scale: 0.99 }}
-            transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+            transition={{ duration: DURATION.fast, ease: EASE_OUT_EXPO }}
           />
         </AnimatePresence>
 

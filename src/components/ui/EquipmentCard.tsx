@@ -1,7 +1,7 @@
 import { motion, useReducedMotion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { cn } from '@/lib/cn';
-import { motionWhen } from '@/lib/motion';
+import { motionWhen, TRANSITION_HOVER } from '@/lib/motion';
 import { sizedImage } from '@shared/images';
 import { getCategory } from '@shared/taxonomy';
 import type { ListingEntry } from '@/lib/data';
@@ -46,7 +46,7 @@ export function EquipmentCard({
     <motion.article
       className={cn('group relative', className)}
       {...motionWhen(!prefersReduced, { whileHover: { y: -4 } })}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      transition={TRANSITION_HOVER}
     >
       <Link to={`/equipment/${entry.slug}`} className="block">
         <div className="relative aspect-16/10 overflow-hidden rounded-(--radius-card) bg-base">
