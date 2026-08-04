@@ -22,7 +22,7 @@ export function HeroStats({ entries }: { entries: ListingEntry[] | undefined }) 
   const stats = corpusStats(entries);
 
   return (
-    <dl className="flex flex-wrap gap-x-12 gap-y-6 sm:gap-x-16">
+    <dl className="flex flex-wrap justify-center gap-x-10 gap-y-6 text-center sm:gap-x-14">
       <Figure value={stats.entries} label="Entries" />
       <Figure value={stats.countries} label="Nations of origin" />
       <Figure value={stats.categories} label="Categories" />

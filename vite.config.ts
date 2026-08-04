@@ -60,7 +60,12 @@ export default defineConfig({
         // The admin bundle is excluded on the same grounds: it is ~35 KB
         // gzipped that only an admin will ever execute, and precaching pushes
         // it onto every visitor in the background.
-        globIgnores: ['**/firebase-*.js', '**/admin-*.js'],
+        // three.module-* joins firebase and admin here on identical grounds:
+        // it is 185 KB gzipped, it draws the hero background and nothing else,
+        // and precaching it means every visitor downloads the whole of WebGL
+        // in the background whether or not the canvas ever renders. It is
+        // dynamically imported after mount and cached at runtime on first use.
+        globIgnores: ['**/firebase-*.js', '**/admin-*.js', '**/three.module-*.js'],
         // Note: the 431 prerendered route shells are not in the precache
         // manifest either, because scripts/prerender.ts runs after vite build
         // and therefore after the manifest is generated. That is the desired

@@ -1,156 +1,118 @@
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, Search } from 'lucide-react';
-import { useRef } from 'react';
 import { Reveal } from '@/components/motion/Reveal';
-import { ButtonLink, Container } from '@/components/ui/primitives';
+import { Container } from '@/components/ui/primitives';
+import { LiquidButton } from '@/components/ui/LiquidButton';
+import { WebGLShader } from '@/components/ui/WebGLShader';
 import { paletteStore } from '@/features/search/store';
+import { corpusStats } from '@/lib/aggregates';
 import type { ListingEntry } from '@/lib/data';
-import { heroReveal, motionWhen } from '@/lib/motion';
-import { sizedImage, wikimediaSrcSet } from '@shared/images';
+import { heroReveal } from '@/lib/motion';
 import { HeroStats } from './HeroStats';
 
 /**
- * Cinematic hero.
+ * Hero.
  *
- * The background parallaxes and fades on scroll via `useScroll`, driven
- * entirely by transform and opacity so it stays on the compositor. All of it
- * collapses to a static image under reduced motion.
+ * Composition taken from the 21st.dev shader demo: a full-bleed animated
+ * fragment shader, a double-ruled box holding centred type, a status dot, and
+ * a single glass button. The photograph that used to fill this section is gone
+ * — the shader is the background now.
  *
- * Four elements here are load-bearing for `npm run verify:contrast`, which
- * samples the composited pixels behind text over photography and asserts
- * against `#main h1`, `#main p.text-overline` and `#main p.text-body` — using
- * `querySelector`, so it takes the FIRST match in the document, and screenshots
- * only the top 900px at 1440 wide. So: the overline stays a <p class=
- * "text-overline">, the blurb stays a <p class="text-body">, both stay ahead of
- * any other such element in DOM order, and all three stay above the fold. The
- * stats strip sits below the blurb for exactly that reason. If a selector ever
- * stops matching, the script prints SKIP and still exits 0 — the coverage
- * disappears silently, so changes here need the output read rather than the
- * exit code.
+ * Three things are load-bearing for `npm run verify:contrast`, which samples
+ * the composited pixels behind text and asserts against `#main h1`,
+ * `#main p.text-overline` and `#main p.text-body` — via `querySelector`, so it
+ * takes the FIRST match in the document, and it screenshots only the top 900px.
+ * So the overline stays a `<p class="text-overline">` and the blurb stays a
+ * `<p class="text-body">`, both ahead of any other such element in DOM order
+ * and both above the fold. Drop either class and the assertion does not fail —
+ * it prints SKIP and still exits 0, silently removing the coverage.
+ *
+ * The demo sets its type directly on the shader. That does not survive
+ * measurement here: the wave runs bright through the vertical centre, which is
+ * exactly where a centred box puts its heading. The box carries a scrim for
+ * that reason and no other — see the note on it below.
  */
 export function Hero({ entries }: { entries: ListingEntry[] | undefined }) {
-  const sectionRef = useRef<HTMLElement>(null);
-  const prefersReduced = useReducedMotion() ?? false;
+  const stats = entries ? corpusStats(entries) : undefined;
 
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start start', 'end start'],
-  });
-
-  const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '18%']);
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
-  const contentY = useTransform(scrollYProgress, [0, 1], ['0%', '40%']);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
-
-  // Curated rather than incidental. This used to take the first entry over
-  // 1600px wide, which is whatever happened to sort first — a cut-out or a
-  // portrait could land here and read as a mistake. Require a featured entry
-  // with a genuinely landscape frame, and fall back progressively.
-  const backdrop =
-    entries?.find(
-      (entry) =>
-        entry.featured &&
-        entry.hero &&
-        (entry.heroWidth ?? 0) >= 1920 &&
-        (entry.heroWidth ?? 0) / (entry.heroHeight ?? 1) >= 1.4 &&
-        (entry.heroWidth ?? 0) / (entry.heroHeight ?? 1) <= 2.1
-    ) ?? entries?.find((entry) => entry.hero && (entry.heroWidth ?? 0) > 1600);
-
-  // `isolate` creates the stacking context so the layers below order with
-  // plain positive z-index — negative z-index escapes to the page root and is
-  // far more fragile.
   return (
-    <section
-      ref={sectionRef}
-      className="on-dark relative isolate flex min-h-dvh items-center overflow-hidden"
-    >
-      <motion.div
-        className="absolute inset-0 z-0"
-        {...motionWhen(!prefersReduced, { style: { y: imageY, scale: imageScale } })}
-      >
-        {backdrop?.hero ? (
-          <img
-            src={sizedImage(backdrop.hero, 1920, backdrop.heroWidth)}
-            // Without a srcset a phone downloaded the same 1920 rendition as a
-            // desktop — the largest single image on the site, for a screen that
-            // cannot show a third of it.
-            srcSet={wikimediaSrcSet(backdrop.hero, backdrop.heroWidth)}
-            sizes="100vw"
-            alt=""
-            aria-hidden="true"
-            fetchPriority="high"
-            decoding="sync"
-            className="size-full object-cover"
-          />
-        ) : null}
-      </motion.div>
+    <section className="on-dark relative isolate flex min-h-dvh items-center justify-center overflow-hidden">
+      {/* The shader fills the section, not the viewport. The original pins it
+          `fixed`, which would leave it painting behind every other route. */}
+      <div className="absolute inset-0 z-0">
+        <WebGLShader />
+      </div>
 
-      {/* One vertical gradient anchors the copy and the bottom edge; the
-          horizontal pass stops at 65% so the right of the frame keeps its
-          image. Both are built from --color-scrim, which never inverts. */}
-      <div className="absolute inset-0 z-10 bg-linear-to-b from-scrim/70 via-scrim/40 via-40% to-scrim" />
-      <div className="absolute inset-0 z-10 bg-linear-to-r from-scrim via-scrim/55 via-35% to-transparent to-65%" />
+      {/* Darkens the frame edges so the box is not competing with the
+          brightest part of the wave, and so the section resolves into the page
+          background rather than ending on a hard line. */}
       <div aria-hidden="true" className="field-vignette absolute inset-0 z-10" />
 
-      {/* The technical field, masked into the left third where the copy sits.
-          Above the scrim so it reads as drawing paper laid over the photograph
-          rather than as an artefact of the image. */}
-      <div
-        aria-hidden="true"
-        className="field-grid absolute inset-y-0 left-0 z-10 w-full max-w-3xl opacity-70"
-      />
-
       <Container className="relative z-20">
-        <motion.div
-          className="max-w-4xl py-28"
-          {...motionWhen(!prefersReduced, { style: { y: contentY, opacity: contentOpacity } })}
-        >
-          <Reveal variants={heroReveal} variantKey="heroReveal">
-            <div className="corner-ticks -m-4 p-4">
-              <p className="text-overline uppercase text-fg-tertiary">
+        <Reveal variants={heroReveal} variantKey="heroReveal">
+          {/* Two rules, one inside the other, as in the original. */}
+          <div className="mx-auto w-full max-w-3xl border border-line-strong p-2">
+            {/*
+              The scrim is the one departure from the demo, and it is measured
+              rather than preferred. The shader's wave peaks at full-intensity
+              red/green/blue across the vertical centre; white text sitting
+              directly on it measured below the 4.5:1 floor the axe gate
+              enforces. A near-opaque backdrop keeps the effect visible around
+              the box while the type stays legible inside it.
+            */}
+            <div className="relative overflow-hidden border border-line-strong bg-scrim/70 px-6 py-12 backdrop-blur-md sm:px-10">
+              <p className="text-center text-overline uppercase text-fg-tertiary">
                 An encyclopedia of military equipment
               </p>
-              <h1 className="mt-6 text-display text-fg">
+
+              <h1 className="mt-4 text-center text-display font-extrabold tracking-tighter text-fg">
                 Explore the World&rsquo;s Military Arsenal
               </h1>
-              <p className="mt-7 max-w-[54ch] text-body text-fg-secondary">
+
+              <p className="mx-auto mt-5 max-w-[52ch] text-center text-body text-fg-secondary">
                 Specifications, history, and imagery for the firearms, armour, aircraft, and
-                vessels that define modern warfare &mdash; researched, sourced, and presented with
-                the care the subject deserves.
+                vessels that define modern warfare.
               </p>
-            </div>
-          </Reveal>
 
-          <Reveal className="mt-9" delay={0.2}>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <button
-                type="button"
-                onClick={() => paletteStore.open()}
-                className="group flex min-h-14 w-full max-w-md items-center gap-3 rounded-full border border-line-strong bg-card/80 px-6 text-left backdrop-blur-md transition-colors duration-300 hover:border-line-glow sm:w-auto sm:min-w-[24rem]"
-              >
-                <Search size={18} className="text-fg-tertiary" aria-hidden="true" />
-                <span className="flex-1 text-body text-fg-tertiary">
-                  Search rifles, tanks, aircraft&hellip;
-                </span>
-                <kbd
-                  aria-hidden="true"
-                  className="hidden rounded border border-line px-2 py-1 text-[0.6875rem] text-fg-tertiary sm:inline"
+              {/* The demo's availability indicator, carrying something true —
+                  the span is derived, so it cannot go stale. */}
+              {stats ? (
+                <div className="mt-8 flex items-center justify-center gap-2">
+                  <span className="relative flex size-3 items-center justify-center">
+                    <span className="absolute inline-flex size-full animate-ping rounded-full bg-success opacity-75" />
+                    <span className="relative inline-flex size-2 rounded-full bg-success" />
+                  </span>
+                  <p className="tnum text-caption text-success">
+                    Live index · {stats.earliest}&ndash;{stats.latest}
+                  </p>
+                </div>
+              ) : null}
+
+              <div className="mt-9 flex justify-center">
+                <LiquidButton
+                  size="xl"
+                  onClick={() => paletteStore.open()}
+                  className="border border-line-strong text-fg"
                 >
-                  ⌘K
-                </kbd>
-              </button>
+                  Search the arsenal
+                </LiquidButton>
+              </div>
 
-              <ButtonLink to="/browse" variant="secondary" className="min-h-14">
-                Browse all
-                <ArrowRight size={16} aria-hidden="true" />
-              </ButtonLink>
+              {/*
+                Inside the box, not floating on the shader beneath it.
+                The wave runs bright and diagonal across the lower frame, and
+                it crossed the stats exactly — "44 CATEGORIES" was unreadable
+                against the white band. verify:contrast never saw it, because
+                its targets are the heading, overline and blurb; this is the
+                failure class a gate cannot cover, only a screenshot.
+
+                Moving them in also retires a redundancy: the status line above
+                was reprinting the same entry and nation counts.
+              */}
+              <div className="mt-10 border-t border-line pt-8">
+                <HeroStats entries={entries} />
+              </div>
             </div>
-          </Reveal>
-
-          <Reveal className="mt-12" delay={0.32}>
-            <HeroStats entries={entries} />
-          </Reveal>
-        </motion.div>
+          </div>
+        </Reveal>
       </Container>
     </section>
   );
