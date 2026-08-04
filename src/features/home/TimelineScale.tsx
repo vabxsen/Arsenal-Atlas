@@ -52,19 +52,29 @@ export function TimelineScale({ entries }: { entries: ListingEntry[] }) {
           />
         </Reveal>
 
+        {/*
+          Scrolls sideways below sm.
+          Seventeen decades will not fit 390px — the ticks alone overflowed the
+          document by 25px, which verify:responsive caught. Squeezing them
+          would make the axis unreadable, so the scale keeps its proportions
+          and the reader drags it, the same affordance the carousel uses. The
+          links inside stay tab-reachable and the browser scrolls them into
+          view.
+        */}
         <Reveal className="mt-16">
-          <div className="relative">
-            {/* The scale itself. */}
-            <motion.div
-              aria-hidden="true"
-              className="absolute inset-x-0 bottom-10 h-px origin-left bg-line-strong"
-              variants={resolveVariants(drawIn, prefersReduced, 'drawIn')}
-              initial="hidden"
-              whileInView="visible"
-              viewport={revealViewport}
-            />
+          <div className="relative overflow-x-auto pb-2 sm:overflow-visible [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            <div className="relative min-w-[34rem] sm:min-w-0">
+              {/* The scale itself. */}
+              <motion.div
+                aria-hidden="true"
+                className="absolute inset-x-0 bottom-10 h-px origin-left bg-line-strong"
+                variants={resolveVariants(drawIn, prefersReduced, 'drawIn')}
+                initial="hidden"
+                whileInView="visible"
+                viewport={revealViewport}
+              />
 
-            <ol className="relative flex items-end justify-between">
+              <ol className="relative flex items-end justify-between">
               {buckets.map((bucket) => {
                 const share = bucket.entries.length / busiest;
                 // Area, not diameter — a dot scaled linearly by count
@@ -86,16 +96,17 @@ export function TimelineScale({ entries }: { entries: ListingEntry[] }) {
                         style={{ width: `${size}px`, height: `${size}px` }}
                         className="rounded-full bg-steel transition-colors duration-300 group-hover:bg-accent-bright group-focus-visible:bg-accent-bright"
                       />
-                      {/* Sits on the rule. Vertical at narrow widths, or 17
-                          four-digit labels collide well before the sm break. */}
-                      <span className="tnum mt-3 block h-7 text-[0.6875rem] text-fg-tertiary [writing-mode:vertical-rl] sm:[writing-mode:horizontal-tb]">
+                      {/* Sits on the rule. Two digits, since the scale's span
+                          is stated in full in the section's own header. */}
+                      <span className="tnum mt-3 block text-[0.6875rem] text-fg-tertiary">
                         {String(bucket.decade).slice(2)}
                       </span>
                     </Link>
                   </li>
                 );
               })}
-            </ol>
+              </ol>
+            </div>
           </div>
         </Reveal>
       </Container>

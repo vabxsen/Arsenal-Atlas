@@ -20,6 +20,7 @@
     "verify:bundle": "tsx scripts/verifyBundle.ts",
     "verify:contrast": "tsx scripts/verifyContrast.ts",
     "verify:tokens": "tsx scripts/verifyTokens.ts",
+    "verify:responsive": "tsx scripts/verifyResponsive.ts",
     "verify:images": "tsx scripts/verifyOgImages.ts",
     "emulators": "firebase emulators:start --import=./.emulator-data --export-on-exit=./.emulator-data"
   },
