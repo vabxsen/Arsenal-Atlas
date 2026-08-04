@@ -85,7 +85,7 @@ export default function CountriesPage() {
         </Reveal>
 
         <Reveal className="mt-12">
-          <div className="rounded-(--radius-card) bg-card p-4 sm:p-8">
+          <div className="field-radar rounded-(--radius-card) p-4 sm:p-8">
             {topology && !isLoading ? (
               <WorldMap
                 topology={topology}

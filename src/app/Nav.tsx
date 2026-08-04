@@ -77,7 +77,10 @@ export function Nav() {
           Arsenal<span className="text-fg-tertiary"> Atlas</span>
         </Link>
 
-        <ul className="ml-4 hidden items-center gap-1 md:flex">
+        {/* lg, not md. A fifth link (Conflicts) plus search, account and the
+            wordmark overflows a 768px bar; below this the same links are in
+            the sheet, which is where they belong at that width anyway. */}
+        <ul className="ml-4 hidden items-center gap-1 lg:flex">
           {LINKS.map((link) => (
             <li key={link.to}>
               <NavLink
@@ -133,7 +136,7 @@ export function Nav() {
           <button
             type="button"
             onClick={() => setMenuOpen((open) => !open)}
-            className="inline-grid size-11 place-items-center rounded-full text-fg-secondary transition-colors hover:text-fg md:hidden"
+            className="inline-grid size-11 place-items-center rounded-full text-fg-secondary transition-colors hover:text-fg lg:hidden"
             aria-label={menuOpen ? 'Close menu' : 'Open menu'}
             aria-expanded={menuOpen}
           >
@@ -143,9 +146,12 @@ export function Nav() {
       </nav>
 
       {menuOpen ? (
-        <div className="relative border-t border-line md:hidden">
+        <div className="relative border-t border-line lg:hidden">
+          {/* Collections appears here and in the account menu, but not in the
+              desktop bar: it is a personal view rather than a section of the
+              reference, and the bar is already at its width budget. */}
           <ul className="mx-auto max-w-(--container-page) px-6 py-2">
-            {LINKS.map((link) => (
+            {[...LINKS, { to: '/saved', label: 'Collections' }].map((link) => (
               <li key={link.to}>
                 <NavLink
                   to={link.to}

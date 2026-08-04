@@ -42,7 +42,12 @@ export default function TimelinePage() {
 
   return (
     <div className="pb-32 pt-nav">
-      <Container className="pt-20">
+      <div className="relative">
+        <div
+          aria-hidden="true"
+          className="field-contour pointer-events-none absolute inset-x-0 top-0 h-[24rem]"
+        />
+      <Container className="relative pt-20">
         <Reveal>
           <p className="text-overline uppercase text-fg-tertiary">Chronology</p>
           <h1 className="mt-6 text-h1 text-fg">Timeline</h1>
@@ -77,6 +82,7 @@ export default function TimelinePage() {
           </div>
         </Reveal>
       </Container>
+      </div>
 
       <Container className="mt-16">
         {visible.map((bucket) => (
