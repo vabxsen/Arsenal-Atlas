@@ -43,8 +43,12 @@ export function FavoriteButton({
       transition={{ type: 'spring', stiffness: 400, damping: 22 }}
       className={cn(
         'grid size-11 shrink-0 place-items-center rounded-full transition-colors duration-200',
+        // The overlay variant sits on a photograph, so it takes the
+        // always-dark treatment in both themes — `on-dark` pins the
+        // foreground too, which matters: without it light mode rendered
+        // #515154 text on this pill, i.e. dark grey on a dark scrim.
         variant === 'overlay'
-          ? 'bg-deep/60 backdrop-blur-md hover:bg-deep/80'
+          ? 'on-dark bg-scrim/60 backdrop-blur-md hover:bg-scrim/80'
           : 'bg-elevated hover:bg-raised',
         active ? 'text-accent-bright' : 'text-fg-secondary hover:text-fg',
         className

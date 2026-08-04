@@ -21,8 +21,8 @@ export default defineConfig({
         name: 'Arsenal Atlas',
         short_name: 'Arsenal Atlas',
         description: "A premium encyclopedia of the world's military equipment.",
-        theme_color: '#020202',
-        background_color: '#020202',
+        theme_color: '#090909',
+        background_color: '#090909',
         display: 'standalone',
         start_url: '/',
         icons: [

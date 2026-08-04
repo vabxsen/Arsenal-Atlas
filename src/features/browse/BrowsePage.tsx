@@ -86,7 +86,7 @@ export default function BrowsePage() {
                           className="absolute inset-0 size-full object-cover transition-transform duration-700 ease-(--ease-out-expo) group-hover:scale-105"
                         />
                       ) : null}
-                      <div className="absolute inset-0 bg-linear-to-t from-deep via-deep/75 via-45% to-deep/25" />
+                      <div className="absolute inset-0 bg-linear-to-t from-scrim via-scrim/75 via-45% to-scrim/25" />
 
                       <div className="relative">
                         <h3 className="text-h3 text-fg">{category.name}</h3>

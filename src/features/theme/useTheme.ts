@@ -43,8 +43,11 @@ function apply(pref: ThemePreference): void {
   document.documentElement.style.colorScheme = resolved;
 
   // Keep the browser UI (address bar, form controls) in step with the page.
+  // These are --color-deep in each theme; they used to be #020202/#fbfbfd,
+  // which matched neither, so the address bar sat a shade off the page it
+  // was framing. Change them together with the token or not at all.
   const meta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
-  if (meta) meta.content = resolved === 'dark' ? '#020202' : '#fbfbfd';
+  if (meta) meta.content = resolved === 'dark' ? '#090909' : '#ffffff';
 }
 
 function subscribe(listener: () => void): () => void {

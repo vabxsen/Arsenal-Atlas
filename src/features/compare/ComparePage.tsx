@@ -118,7 +118,7 @@ export default function ComparePage() {
                   <button
                     type="button"
                     onClick={() => setSlugs(slugs.filter((s) => s !== entry.slug))}
-                    className="absolute right-2 top-2 grid size-9 place-items-center rounded-full bg-deep/70 text-fg-secondary backdrop-blur transition-colors hover:text-fg"
+                    className="on-dark absolute right-2 top-2 grid size-9 place-items-center rounded-full bg-scrim/70 text-fg-secondary backdrop-blur transition-colors hover:text-fg"
                     aria-label={`Remove ${entry.name} from comparison`}
                   >
                     <X size={16} />

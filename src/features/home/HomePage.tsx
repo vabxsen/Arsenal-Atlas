@@ -133,8 +133,8 @@ function Hero({ entries }: { entries: ListingEntry[] | undefined }) {
           vertical gradient anchors the copy and the bottom edge, and the
           horizontal pass stops at the halfway mark instead of running the full
           width, so the right side of the frame keeps its image. */}
-      <div className="absolute inset-0 z-10 bg-linear-to-b from-deep/70 via-deep/40 via-40% to-deep" />
-      <div className="absolute inset-0 z-10 bg-linear-to-r from-deep via-deep/55 via-35% to-transparent to-65%" />
+      <div className="absolute inset-0 z-10 bg-linear-to-b from-scrim/70 via-scrim/40 via-40% to-scrim" />
+      <div className="absolute inset-0 z-10 bg-linear-to-r from-scrim via-scrim/55 via-35% to-transparent to-65%" />
 
       <Container className="relative z-20">
         <motion.div

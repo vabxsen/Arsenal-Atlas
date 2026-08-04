@@ -181,8 +181,8 @@ function Detail({ entry }: { entry: Equipment }) {
         <div
           className={
             fit === 'contain'
-              ? 'absolute inset-0 z-10 bg-linear-to-t from-deep via-deep/85 via-38% to-deep/5 to-62%'
-              : 'absolute inset-0 z-10 bg-linear-to-t from-deep via-deep/88 via-48% to-deep/10'
+              ? 'absolute inset-0 z-10 bg-linear-to-t from-scrim via-scrim/85 via-38% to-scrim/5 to-62%'
+              : 'absolute inset-0 z-10 bg-linear-to-t from-scrim via-scrim/88 via-48% to-scrim/10'
           }
         />
 

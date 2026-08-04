@@ -36,40 +36,57 @@
    are the exception, not the container of first resort.
 
    Colour carries exactly one meaning — interactive — through the
-   accent. Everything else is greyscale, so imagery is the only
-   thing on the page with hue.
+   accent. The material tokens below are the single exception, and
+   they are orthogonal: they encode *data*, never interaction.
 
    Contrast is a hard gate, not a guideline: `npm run a11y` fails
    the build on any violation, and `npm run verify:contrast`
-   covers text over photography, which axe cannot evaluate.
-     fg            -> 19.3:1 on deep
-     fg-secondary  ->  8.2:1 on deep
-     fg-tertiary   ->  6.1:1 on deep, 5.0:1 on card
-     accent        ->  5.8:1 on deep, 4.7:1 on card
+   covers text over photography, which axe cannot evaluate. Every
+   foreground token measured against every surface it can land on:
+
+                deep  base  card  elev  raised
+     fg        18.29 17.34 16.77 15.63  14.23
+     secondary  7.74  7.34  7.10  6.61   6.02
+     tertiary   5.80  5.50  5.32  4.95   4.51
+     accent     6.96  6.60  6.39  5.95   5.42
+     olive      6.50  6.16  5.96  5.55   5.06
+     steel      7.78  7.37  7.13  6.64   6.05
+
+   There is no illegal dark surface: every token clears 4.5:1 on
+   every step. That is new — see the ramp note below.
    ============================================================ */
 
 @theme {
   /* --- Surfaces ------------------------------------------- */
-  /* True black, not near-black. On OLED the page edge disappears entirely,
-     so full-bleed imagery reads as floating rather than sitting in a box —
-     which is the whole point of an image-led layout. The greys above it are
-     Apple's dark elevation steps. */
-  --color-deep: #000000;
-  --color-base: #0a0a0a;
-  --color-card: #1c1c1e;
-  --color-elevated: #242426;
-  --color-raised: #2c2c2e;
+  /* Near-black rather than true black. The page carries a technical grid
+     (see the `field-*` utilities); at #000 that grid has no floor to sit on
+     and the hairlines shimmer against an absolute zero. One step up gives
+     them something to hold, and costs nothing on OLED at this value. */
+  --color-deep: #090909;
+  --color-base: #111111;
+  --color-card: #151515;
+  --color-elevated: #1c1c1e;
+  --color-raised: #242426;
 
   /*
-   * The ramp stops here for a measured reason. --color-fg-tertiary (#8a8a8f)
-   * clears 4.5:1 on surfaces up to #242426 and fails above it — 4.51:1 on
-   * `elevated`, 4.06:1 at #2c2c2e. A first attempt at this palette ran the
-   * ramp to #2c2c2e/#3a3a3c and axe caught the sticky header in Compare
-   * immediately.
+   * This ramp is the old one shifted down a step, and that shift is the
+   * point. --color-fg-tertiary (#8a8a8f) previously failed on `raised`
+   * (#2c2c2e, 4.06:1) — a documented landmine that axe caught once already
+   * in Compare's sticky header, and that every future contributor had to
+   * remember. `raised` is now #242426, where tertiary measures 4.51:1.
    *
-   * So: tertiary text is valid on deep, base, card and elevated. On `raised`
-   * — which exists for hover states — use fg-secondary or fg.
+   * So the old exception is retired: tertiary text is valid on every
+   * surface in the system. Do not lighten `raised` past #242426 without
+   * re-measuring — 4.51 is the floor, not a comfortable margin.
    */
+
+  /* Photographic scrims ONLY — never a page surface, never themed.
+     --color-deep used to do both jobs, and lightening it to #090909 would
+     have lightened all 20 text-over-photography assertions in
+     verify:contrast for a difference no eye can see through a photograph.
+     Split so the page can move and the scrim cannot. Deliberately absent
+     from the light theme and from .on-dark: it is invariant by definition. */
+  --color-scrim: #000000;
 
   /* --- Hairlines ------------------------------------------ */
   /* Deliberately faint, and deliberately rare. Separation in this design
@@ -79,6 +96,12 @@
   --color-line: rgb(255 255 255 / 0.06);
   --color-line-strong: rgb(255 255 255 / 0.12);
   --color-line-glow: rgb(255 255 255 / 0.2);
+
+  /* Technical-drawing rules, for the `field-*` utilities only. Fainter than
+     --color-line because a grid is a field of hundreds of lines rather than
+     one: at 0.06 an 88px module reads as a tablecloth. */
+  --color-grid: rgb(255 255 255 / 0.035);
+  --color-grid-strong: rgb(255 255 255 / 0.06);
 
   /* --- Foreground ----------------------------------------- */
   --color-fg: #f5f5f7;
@@ -91,13 +114,36 @@
   --color-fg-tertiary: #8a8a8f;
 
   /* --- Accent (used sparingly) ---------------------------- */
-  /* Apple's dark-mode system blue. The palette is otherwise greyscale, so
-     this carries one job: interactive. Focus rings, links, and the single
-     primary action in a view — nothing decorative.
-     5.76:1 on true black, 4.66:1 on --color-card. */
-  --color-accent: #0a84ff;
-  --color-accent-bright: #409cff;
-  --color-accent-dim: rgb(10 132 255 / 0.16);
+  /* Steel blue, not iOS system blue. The job is unchanged and still single —
+     interactive: focus rings, links, the one primary action in a view,
+     nothing decorative. The desaturation is what moves the page from
+     "app chrome" to "instrument", and it measures strictly safer than the
+     blue it replaces at every step: 6.39:1 on card against 4.66, and 5.42:1
+     on `raised` where #0a84ff actually failed at 3.82:1. */
+  --color-accent: #5a9fd4;
+  /* Carries the focus ring, so it is deliberately the brightest member of
+     the family: 9.03:1 on card. */
+  --color-accent-bright: #8fbcdb;
+  --color-accent-dim: rgb(90 159 212 / 0.16);
+
+  /* --- Materials (data encoding, never interaction) -------- */
+  /*
+   * The second colour dimension, and the only exception to the one-meaning
+   * rule above — because these never signal that something is clickable.
+   * They carry quantity and category: chart and map fills, tick marks,
+   * proportional bars, a group rule. Never a link colour, never a focus
+   * ring, never a button fill.
+   *
+   * They clear 4.5:1 on every surface even though they are not primarily
+   * text, so a misuse degrades rather than failing the axe gate.
+   *
+   * One hard rule: olive is never a filled background under text. As a fill
+   * it needs dark text, and dark mode has no dark foreground token. Olive
+   * appears as a wash at <=20% opacity or as a mark <=4px, and nothing else.
+   */
+  --color-olive: #8a9a5b;
+  --color-steel: #9aa3ab;
+  --color-titanium: #c8ccd0;
 
   /* --- Semantic ------------------------------------------- */
   --color-danger: #ff453a;
@@ -159,13 +205,32 @@
   --text-overline--letter-spacing: 0.06em;
   --text-overline--font-weight: 590;
 
+  /* Instrument numerals — counts, years, spec figures, index numbers. Set in
+     --font-mono, which is system-resident, so the single strongest technical
+     signal available on the page costs zero bytes. Pair with `tnum`. */
+  --text-data: 0.75rem;
+  --text-data--line-height: 1.2;
+  --text-data--letter-spacing: 0.04em;
+  --text-data--font-weight: 500;
+
+  /*
+   * A floor, not a preference: verifyContrast asserts `#main h1` at
+   * `required: 3`, which is the WCAG *large text* threshold and is only the
+   * correct assertion while an h1 is >=24px (or >=18.66px bold) at every
+   * viewport. --text-h1 bottoms out at 34px and --text-display at 44px.
+   * Lowering either clamp minimum silently makes the gate assert the wrong
+   * number rather than failing.
+   */
+
   /* --- Radii ---------------------------------------------- */
-  /* Larger and softer. Apple's continuous corners are generous relative to
-     the element, which is what stops a rounded rectangle reading as a "card"
-     with a border implied around it. */
-  --radius-card: 20px;
-  --radius-sheet: 24px;
-  --radius-hero: 32px;
+  /* Tightened from 20/24/32. A 20px corner on a 16:10 photograph reads as a
+     consumer app tile; the blueprint language wants a corner you could put a
+     dimension on. Heroes go square-edged — they are full-bleed, so a radius
+     was only ever rounding the viewport. */
+  --radius-card: 14px;
+  --radius-sheet: 18px;
+  --radius-chip: 8px;
+  --radius-hero: 0px;
 
   /* --- Motion --------------------------------------------- */
   /* One curve for the entire product. */
@@ -179,7 +244,10 @@
   --shadow-card: 0 1px 3px rgb(0 0 0 / 0.5);
   --shadow-lift: 0 8px 32px -12px rgb(0 0 0 / 0.7);
   --shadow-sheet: 0 32px 64px -16px rgb(0 0 0 / 0.9);
-  --shadow-glow: 0 0 48px -12px rgb(10 132 255 / 0.35);
+  /* Exactly one consumer, deliberately: the focused command palette. A glow
+     that appears in more than one place stops reading as focus and starts
+     reading as decoration — which on a dark page is the gaming register. */
+  --shadow-glow: 0 0 48px -12px rgb(90 159 212 / 0.28);
 
   /* --- Layout --------------------------------------------- */
   --container-page: 84rem;
@@ -201,35 +269,55 @@
    rather than an inversion. Surfaces get lighter as they come
    forward in dark mode (deep -> card) and *whiter* in light mode,
    so elevation still reads correctly rather than backwards.
-   Contrast verified on the two backgrounds each token lands on:
-     fg-secondary #515154 -> 7.9:1 on card, 7.2:1 on base
-     fg-tertiary  #6e6e73 -> 5.1:1 on card, 4.6:1 on base
+   Contrast verified on the backgrounds each token lands on:
+     fg-secondary #515154 -> 7.9:1 on card, 7.3:1 on base
+     fg-tertiary  #6e6e73 -> 5.1:1 on card, 4.7:1 on base
+
+   ONE illegal pairing survives here and it is pre-existing:
+   fg-tertiary on `raised` (#f0f0f2) measures 4.46:1 and fails.
+   The axe gate passes today only because tertiary text never
+   lands on light `raised`. Do not introduce it, and do not
+   darken `raised` — there is no headroom in this direction.
    ============================================================ */
 :root[data-theme='light'] {
   --color-deep: #ffffff;
   --color-base: #f5f5f7;
   --color-card: #ffffff;
-  --color-elevated: #ffffff;
+  /* Was #ffffff, identical to deep and card — so an "elevated" panel was
+     invisible on a white page except by its shadow. That is the same
+     flatness complaint the dark palette had, in light mode. #fbfbfd is the
+     smallest step that separates them; tertiary still clears at 4.91:1. */
+  --color-elevated: #fbfbfd;
   --color-raised: #f0f0f2;
 
   --color-line: rgb(0 0 0 / 0.08);
   --color-line-strong: rgb(0 0 0 / 0.14);
   --color-line-glow: rgb(0 0 0 / 0.24);
 
+  --color-grid: rgb(0 0 0 / 0.045);
+  --color-grid-strong: rgb(0 0 0 / 0.07);
+
   --color-fg: #1d1d1f;
   --color-fg-secondary: #515154;
   --color-fg-tertiary: #6e6e73;
 
   /*
-   * Not Apple's #007AFF, and not apple.com's #0071E3 either. Measured against
-   * this palette both fail the project's AA floor for normal text — 4.02:1 and
-   * 4.31:1 on --color-base respectively. Apple does not hold that blue to
-   * WCAG AA; the 0-violation axe gate here does. #0068D6 is the lightest blue
-   * in the same family that clears it: 5.31:1 on white, 4.88:1 on base.
+   * The steel blue taken down until it clears AA on both light surfaces with
+   * margin: 5.80:1 on white, 5.33:1 on base. The note that outlived the
+   * palette still holds — Apple's #007AFF (4.02:1) and apple.com's #0071E3
+   * (4.31:1) both fail here, because Apple does not hold that blue to WCAG AA
+   * and the 0-violation axe gate does. The outgoing #0068D6 measured
+   * 5.31/4.88; this is strictly safer.
    */
-  --color-accent: #0068d6;
-  --color-accent-bright: #0057b8;
-  --color-accent-dim: rgb(0 104 214 / 0.1);
+  --color-accent: #2a6a99;
+  --color-accent-bright: #1f6091;
+  --color-accent-dim: rgb(42 106 153 / 0.1);
+
+  /* Materials, darkened for a light ground. Same rule as in dark mode: these
+     encode data, never interaction. 5.80 / 5.50 / 7.95 on white. */
+  --color-olive: #5c6b3c;
+  --color-steel: #5a6b7a;
+  --color-titanium: #43535f;
 
   --shadow-card: 0 1px 2px rgb(0 0 0 / 0.06), 0 8px 24px -12px rgb(0 0 0 / 0.12);
   --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.06), 0 24px 48px -20px rgb(0 0 0 / 0.18);
@@ -253,38 +341,47 @@
 /* ============================================================
    Always-dark regions
    Full-bleed photographic heroes keep their dark treatment in
-   both themes. The scrim is built from --color-deep, so in light
-   mode it would otherwise bleach the photograph to near-white —
-   technically still legible, but it destroys the image and the
-   cinematic intent. Pinning the tokens here lets the hero reuse
+   both themes. Their text sits on a --color-scrim gradient over
+   the photograph, so the foreground must stay light whatever the
+   page theme is. Pinning the tokens here lets those regions reuse
    every existing utility unchanged.
+
+   Every value below is a verbatim copy of the @theme block above,
+   and `npm run test:rules` asserts that byte-for-byte — three
+   copies of a palette (here, @theme, and @media print) drift
+   otherwise, and the drift is invisible until someone screenshots
+   light mode. Add a token above and the guard will tell you to
+   add it here too.
+
+   --color-scrim is deliberately NOT repeated: it is theme-
+   invariant by definition, so it never needs re-pinning.
    ============================================================ */
 .on-dark {
-  --color-deep: #000000;
-  --color-base: #0a0a0a;
-  --color-card: #1c1c1e;
-  --color-elevated: #242426;
-  --color-raised: #2c2c2e;
+  --color-deep: #090909;
+  --color-base: #111111;
+  --color-card: #151515;
+  --color-elevated: #1c1c1e;
+  --color-raised: #242426;
 
-  /*
-   * The ramp stops here for a measured reason. --color-fg-tertiary (#8a8a8f)
-   * clears 4.5:1 on surfaces up to #242426 and fails above it — 4.51:1 on
-   * `elevated`, 4.06:1 at #2c2c2e. A first attempt at this palette ran the
-   * ramp to #2c2c2e/#3a3a3c and axe caught the sticky header in Compare
-   * immediately.
-   *
-   * So: tertiary text is valid on deep, base, card and elevated. On `raised`
-   * — which exists for hover states — use fg-secondary or fg.
-   */
   --color-line: rgb(255 255 255 / 0.06);
   --color-line-strong: rgb(255 255 255 / 0.12);
   --color-line-glow: rgb(255 255 255 / 0.2);
+
+  --color-grid: rgb(255 255 255 / 0.035);
+  --color-grid-strong: rgb(255 255 255 / 0.06);
+
   --color-fg: #f5f5f7;
   --color-fg-secondary: #a1a1a6;
   --color-fg-tertiary: #8a8a8f;
+
   /* The dark-mode blue, since this region is dark whatever the page theme. */
-  --color-accent: #0a84ff;
-  --color-accent-bright: #409cff;
+  --color-accent: #5a9fd4;
+  --color-accent-bright: #8fbcdb;
+  --color-accent-dim: rgb(90 159 212 / 0.16);
+
+  --color-olive: #8a9a5b;
+  --color-steel: #9aa3ab;
+  --color-titanium: #c8ccd0;
 }
 
 /* Light-mode counterpart for the frosted nav surface. */
@@ -345,9 +442,11 @@
     border-radius: 4px;
   }
 
+  /* Was a hardcoded indigo left over from a previous palette — the one place
+     in src/ carrying a hex that no token owned. */
   ::selection {
-    background-color: rgb(94 106 210 / 0.4);
-    color: #fff;
+    background-color: var(--color-accent-dim);
+    color: var(--color-fg);
   }
 
   ::-webkit-scrollbar {
@@ -403,11 +502,28 @@
     --color-card: #fff;
     --color-elevated: #fff;
     --color-raised: #fff;
+    --color-scrim: #fff;
     --color-fg: #000;
     --color-fg-secondary: #333;
     --color-fg-tertiary: #555;
     --color-line: #ccc;
     --color-line-strong: #999;
+    --color-grid: transparent;
+    --color-grid-strong: transparent;
+    --color-olive: #555;
+    --color-steel: #555;
+    --color-titanium: #777;
+  }
+
+  /* The technical field is screen furniture. On paper it is toner. */
+  .field-grid,
+  .field-contour,
+  .field-radar,
+  .field-rule,
+  .field-vignette,
+  .corner-ticks {
+    background-image: none !important;
+    mask-image: none !important;
   }
 
   body {
