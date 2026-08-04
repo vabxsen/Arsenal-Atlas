@@ -64,15 +64,32 @@ export function EquipmentCard({
    * Line two is technical, and it is the one that most often has nothing in
    * it, so the whole line is gated on the array rather than each part.
    */
-  const provenance = [entry.role ?? category?.name ?? entry.category, country].filter(Boolean);
-  if (entry.serviceStart) provenance.push(String(entry.serviceStart));
+  /*
+   * `compact` is a 176px column in a carousel, and the full provenance line
+   * ("Close air support attack aircraft · United States · 1977") wrapped to
+   * three lines there — the variant that exists to be dense was the tallest
+   * thing on the page. It gets origin and year only, and no technical line.
+   */
+  const dense = variant === 'compact';
 
-  const hasTechnical = Boolean(entry.manufacturer ?? entry.spec);
+  const provenance = dense
+    ? [country, entry.serviceStart ? String(entry.serviceStart) : undefined].filter(Boolean)
+    : [entry.role ?? category?.name ?? entry.category, country].filter(Boolean);
+  if (!dense && entry.serviceStart) provenance.push(String(entry.serviceStart));
+
+  const hasTechnical = !dense && Boolean(entry.manufacturer ?? entry.spec);
 
   const image = entry.hero ? (
     <SmartImage
       src={sizedImage(entry.hero, variant === 'compact' || isRow ? 500 : 960, entry.heroWidth)}
-      alt={entry.name}
+      /*
+       * Decorative, deliberately. The alt used to repeat entry.name, which is
+       * rendered as the heading directly beneath it inside the same link — so
+       * a screen reader announced the name twice per card, and axe reports it
+       * as image-redundant-alt. The link takes its accessible name from the
+       * heading; the photograph adds nothing a caption does not already say.
+       */
+      alt=""
       fill
       priority={priority}
       sizes={sizes ?? CARD_SIZES[variant]}
@@ -148,10 +165,20 @@ export function EquipmentCard({
         >
           {image}
 
+          {/*
+            Two stops rather than one, and deliberately heavier than it looks
+            like it needs to be. The first pass ran `via-scrim/55 via-45%` and
+            measured 4.36:1 on the metadata line against a bright desert
+            backdrop — a fail that only appeared once verify:contrast learned
+            to scroll to this card. The title cleared at 8.15:1 because it is
+            larger and sits lower in the gradient; the line beneath it is
+            smaller text against the same picture, and it is the one bound by
+            the 4.5 floor rather than 3.
+          */}
           {overImage ? (
             <div
               aria-hidden="true"
-              className="absolute inset-0 bg-linear-to-t from-scrim via-scrim/55 via-45% to-transparent"
+              className="absolute inset-0 bg-linear-to-t from-scrim via-scrim/80 via-38% to-transparent to-88%"
             />
           ) : null}
 

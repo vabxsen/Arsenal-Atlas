@@ -1,25 +1,36 @@
-import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion';
-import { ArrowRight, Search } from 'lucide-react';
-import { useRef } from 'react';
-import { Link } from 'react-router-dom';
-import { Reveal, RevealGroup, RevealItem } from '@/components/motion/Reveal';
-import { EquipmentCard } from '@/components/ui/EquipmentCard';
-import { ButtonLink, Container, SectionHeading, Skeleton } from '@/components/ui/primitives';
-import {
-  featured,
-  newest,
-  popular,
-  randomDaily,
-  useListing,
-  type ListingEntry,
-} from '@/lib/data';
-import { sizedImage, wikimediaSrcSet } from '@shared/images';
-import { heroReveal, motionWhen } from '@/lib/motion';
-import { paletteStore } from '@/features/search/store';
-import { groupedCategories } from '@shared/taxonomy';
-import { CountryRail } from './CountryRail';
-import { TimelinePreview } from './TimelinePreview';
+import { Container, Skeleton } from '@/components/ui/primitives';
+import { featured, newest, popular, randomDaily, useListing } from '@/lib/data';
+import { ArsenalMagazine } from './ArsenalMagazine';
+import { CategoryIndex } from './CategoryIndex';
+import { CountryMap } from './CountryMap';
+import { DailyDispatch } from './DailyDispatch';
+import { FeaturedShowcase } from './FeaturedShowcase';
+import { Hero } from './Hero';
+import { PopularCarousel } from './PopularCarousel';
+import { TechnologySpotlight } from './TechnologySpotlight';
+import { TimelineScale } from './TimelineScale';
 
+/**
+ * The homepage is a composition file and nothing else.
+ *
+ * Nine sections, nine layouts. Four of them used to be the same `Rail`
+ * component — an identical four-column grid rendered for Featured, Popular,
+ * Modern Arsenal and Random Discovery — which is why the page read as a
+ * template no matter how good the individual tiles were. The eye learns a
+ * shape once and then stops looking.
+ *
+ * They now run: cinematic hero, asymmetric editorial block, typographic
+ * ledger, dense carousel, instrument scale, choropleth, magazine spread,
+ * full-bleed diptych, single editorial plate. No two share a grid, an aspect
+ * ratio, or a density, and only one of them (the ledger) has no photography,
+ * which is what gives the eye somewhere to rest.
+ *
+ * Heading order is a hard constraint, not a convention: axe runs with
+ * `best-practice` enabled, so a skipped level fails all 20 route/theme
+ * combinations at once. Every section emits exactly one <h2> and every entry
+ * name beneath it is an <h3>. The one exception is DailyDispatch, which is a
+ * section of a single item and whose <h2> IS the entry name.
+ */
 export function HomePage() {
   const { data: entries, isLoading } = useListing();
 
@@ -35,258 +46,16 @@ export function HomePage() {
         </Container>
       ) : (
         <>
-          <Rail
-            overline="Curated"
-            title="Featured Equipment"
-            entries={featured(entries, 8)}
-            to="/browse"
-          />
-          <CategoryGrid />
-          <Rail overline="Most Viewed" title="Popular Entries" entries={popular(entries, 8)} to="/browse" />
-          <TimelinePreview entries={entries} />
-          <CountryRail entries={entries} />
-          <Rail
-            overline="Newest in Service"
-            title="Modern Arsenal"
-            entries={newest(entries, 8)}
-            to="/timeline"
-          />
+          <FeaturedShowcase entries={featured(entries, 4)} />
+          <CategoryIndex entries={entries} />
+          <PopularCarousel entries={popular(entries, 14)} />
+          <TimelineScale entries={entries} />
+          <CountryMap entries={entries} />
+          <ArsenalMagazine entries={newest(entries, 6)} />
           <TechnologySpotlight entries={entries} />
-          <Rail
-            overline="Discover"
-            title="Something Unexpected"
-            entries={randomDaily(entries, 4)}
-            to="/browse"
-          />
+          <DailyDispatch entry={randomDaily(entries, 1)[0]} />
         </>
       )}
     </div>
-  );
-}
-
-/**
- * Cinematic hero.
- *
- * The background image parallaxes and fades on scroll via `useScroll`, driven
- * entirely by transform and opacity so it stays on the compositor. All of it
- * collapses to a static image under reduced motion.
- */
-function Hero({ entries }: { entries: ListingEntry[] | undefined }) {
-  const sectionRef = useRef<HTMLElement>(null);
-  const prefersReduced = useReducedMotion() ?? false;
-
-  const { scrollYProgress } = useScroll({
-    target: sectionRef,
-    offset: ['start start', 'end start'],
-  });
-
-  const imageY = useTransform(scrollYProgress, [0, 1], ['0%', '18%']);
-  const imageScale = useTransform(scrollYProgress, [0, 1], [1, 1.12]);
-  const contentY = useTransform(scrollYProgress, [0, 1], ['0%', '40%']);
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.6], [1, 0]);
-
-  // Curated rather than incidental. This used to take the first entry over
-  // 1600px wide, which is whatever happened to sort first — a cut-out or a
-  // portrait could land here and read as a mistake. Require a featured entry
-  // with a genuinely landscape frame, and fall back progressively.
-  const backdrop =
-    entries?.find(
-      (entry) =>
-        entry.featured &&
-        entry.hero &&
-        (entry.heroWidth ?? 0) >= 1920 &&
-        (entry.heroWidth ?? 0) / (entry.heroHeight ?? 1) >= 1.4 &&
-        (entry.heroWidth ?? 0) / (entry.heroHeight ?? 1) <= 2.1
-    ) ?? entries?.find((entry) => entry.hero && (entry.heroWidth ?? 0) > 1600);
-
-  // `isolate` creates the stacking context so the layers below order with
-  // plain positive z-index — negative z-index escapes to the page root and is
-  // far more fragile.
-  return (
-    <section
-      ref={sectionRef}
-      className="on-dark relative isolate flex min-h-dvh items-center overflow-hidden"
-    >
-      <motion.div
-        className="absolute inset-0 z-0"
-        {...motionWhen(!prefersReduced, { style: { y: imageY, scale: imageScale } })}
-      >
-        {backdrop?.hero ? (
-          <img
-            src={sizedImage(backdrop.hero, 1920, backdrop.heroWidth)}
-            // Without a srcset a phone downloaded the same 1920 rendition as a
-            // desktop — the largest single image on the site, for a screen that
-            // cannot show a third of it.
-            srcSet={wikimediaSrcSet(backdrop.hero, backdrop.heroWidth)}
-            sizes="100vw"
-            alt=""
-            aria-hidden="true"
-            fetchPriority="high"
-            decoding="sync"
-            className="size-full object-cover"
-          />
-        ) : null}
-      </motion.div>
-
-      {/* Two stacked full-bleed gradients used to sit here, and multiplied into
-          something close to opaque — the photograph was barely legible. Now one
-          vertical gradient anchors the copy and the bottom edge, and the
-          horizontal pass stops at the halfway mark instead of running the full
-          width, so the right side of the frame keeps its image. */}
-      <div className="absolute inset-0 z-10 bg-linear-to-b from-scrim/70 via-scrim/40 via-40% to-scrim" />
-      <div className="absolute inset-0 z-10 bg-linear-to-r from-scrim via-scrim/55 via-35% to-transparent to-65%" />
-
-      <Container className="relative z-20">
-        <motion.div
-          className="max-w-4xl py-32"
-          {...motionWhen(!prefersReduced, { style: { y: contentY, opacity: contentOpacity } })}
-        >
-          <Reveal variants={heroReveal} variantKey="heroReveal">
-            <p className="text-overline uppercase text-fg-tertiary">
-              An encyclopedia of military equipment
-            </p>
-            <h1 className="mt-6 text-display text-fg">
-              Explore the World&rsquo;s Military Arsenal
-            </h1>
-            <p className="mt-8 max-w-[54ch] text-body text-fg-secondary">
-              Specifications, history, and imagery for the firearms, armour, aircraft, and vessels
-              that define modern warfare &mdash; researched, sourced, and presented with the care
-              the subject deserves.
-            </p>
-          </Reveal>
-
-          <Reveal className="mt-10" delay={0.2}>
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-              <button
-                type="button"
-                onClick={() => paletteStore.open()}
-                className="group flex min-h-14 w-full max-w-md items-center gap-3 rounded-full border border-line-strong bg-card/80 px-6 text-left backdrop-blur-md transition-colors duration-300 hover:border-line-glow sm:w-auto sm:min-w-[24rem]"
-              >
-                <Search size={18} className="text-fg-tertiary" aria-hidden="true" />
-                <span className="flex-1 text-body text-fg-tertiary">
-                  Search rifles, tanks, aircraft&hellip;
-                </span>
-                <kbd
-                  aria-hidden="true"
-                  className="hidden rounded border border-line px-2 py-1 text-[0.6875rem] text-fg-tertiary sm:inline"
-                >
-                  ⌘K
-                </kbd>
-              </button>
-
-              <ButtonLink to="/browse" variant="secondary" className="min-h-14">
-                Browse all
-                <ArrowRight size={16} aria-hidden="true" />
-              </ButtonLink>
-            </div>
-          </Reveal>
-        </motion.div>
-      </Container>
-    </section>
-  );
-}
-
-function Rail({
-  overline,
-  title,
-  entries,
-  to,
-}: {
-  overline: string;
-  title: string;
-  entries: ListingEntry[];
-  to: string;
-}) {
-  if (entries.length === 0) return null;
-
-  return (
-    <Container className="mt-section">
-      <Reveal>
-        <SectionHeading
-          overline={overline}
-          title={title}
-          action={
-            <Link
-              to={to}
-              className="hidden shrink-0 items-center gap-1.5 text-caption text-fg-secondary transition-colors hover:text-fg sm:flex"
-            >
-              View all <ArrowRight size={14} aria-hidden="true" />
-            </Link>
-          }
-        />
-      </Reveal>
-
-      <RevealGroup className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-        {entries.map((entry) => (
-          <RevealItem key={entry.id}>
-            <EquipmentCard entry={entry} />
-          </RevealItem>
-        ))}
-      </RevealGroup>
-    </Container>
-  );
-}
-
-function CategoryGrid() {
-  const groups = groupedCategories();
-
-  return (
-    <Container className="mt-section">
-      <Reveal>
-        <SectionHeading overline="By Type" title="Popular Categories" />
-      </Reveal>
-
-      {/* Columns separated by space and a single hairline, not by nine bordered
-          panels each with its own fill. The group name does the dividing work
-          that the panel edge used to. */}
-      <div className="mt-12 grid gap-x-10 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
-        {groups.map(({ group, categories }) => (
-          <div key={group}>
-            <h3 className="border-b border-line pb-3 text-h3 text-fg">{group}</h3>
-            <ul className="mt-4 flex flex-col">
-              {categories.map((category) => (
-                <li key={category.slug}>
-                  <Link
-                    to={`/category/${category.slug}`}
-                    className="flex min-h-10 items-center text-caption text-fg-secondary transition-colors duration-200 hover:text-fg"
-                  >
-                    {category.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
-      </div>
-    </Container>
-  );
-}
-
-/** Editorial rail contrasting the oldest and newest designs still in service. */
-function TechnologySpotlight({ entries }: { entries: ListingEntry[] }) {
-  const dated = entries.filter((entry) => entry.serviceStart && entry.hero);
-  const oldest = [...dated].sort((a, b) => (a.serviceStart ?? 0) - (b.serviceStart ?? 0))[0];
-  const latest = [...dated].sort((a, b) => (b.serviceStart ?? 0) - (a.serviceStart ?? 0))[0];
-  if (!oldest || !latest) return null;
-
-  const span = (latest.serviceStart ?? 0) - (oldest.serviceStart ?? 0);
-
-  return (
-    <Container className="mt-section">
-      <Reveal>
-        <SectionHeading overline="Technology Spotlight" title="Across the Centuries" />
-      </Reveal>
-
-      <Reveal className="mt-12">
-        <div className="grid items-center gap-10 lg:grid-cols-[1fr_auto_1fr]">
-          <EquipmentCard entry={oldest} />
-          <div className="text-center">
-            <p className="tnum text-display text-fg">{span}</p>
-            <p className="mt-1 text-overline uppercase text-fg-tertiary">Years apart</p>
-          </div>
-          <EquipmentCard entry={latest} />
-        </div>
-      </Reveal>
-    </Container>
   );
 }

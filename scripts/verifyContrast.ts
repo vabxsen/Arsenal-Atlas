@@ -60,6 +60,30 @@ const TARGETS: Target[] = [
   { route: '/', label: 'home h1', selector: '#main h1', required: 3 },
   { route: '/', label: 'home overline', selector: '#main p.text-overline', required: 4.5 },
   { route: '/', label: 'home body', selector: '#main p.text-body', required: 4.5 },
+
+  /*
+   * Two homepage cards set type *over* their own photograph, on their own
+   * scrim rather than the hero's. They are the likeliest places in the
+   * redesign for text on an image to fail and neither was measured, since the
+   * three targets above all sit in the hero.
+   *
+   * The selectors are heading-level specific and that is load-bearing. Cards
+   * render an h3 by default, so the first `#main article h3` is the showcase
+   * lead. DailyDispatch is a section of one item and its heading IS the
+   * section heading, so it is the only <article> on the page containing an h2.
+   * The first attempt used `#main article h2` for the feature card and
+   * silently measured the dispatch instead — which is how the dispatch blurb
+   * turned out to be the thing actually failing.
+   *
+   * Ordered after the three hero targets and before the first route change, so
+   * the hero is always sampled at scroll position 0: both of these are below
+   * the fold, and reaching them scrolls the page, which moves the hero's
+   * parallax backdrop.
+   */
+  { route: '/', label: 'home feature card name', selector: '#main article h3', required: 3 },
+  { route: '/', label: 'home feature card meta', selector: '#main article h3 + p', required: 4.5 },
+  { route: '/', label: 'home dispatch name', selector: '#main article h2', required: 3 },
+  { route: '/', label: 'home dispatch blurb', selector: '#main article h2 + p', required: 4.5 },
   // Category tiles put their label straight onto the photograph.
   { route: '/browse', label: 'browse tile name', selector: '#main a h3', required: 3 },
   { route: '/browse', label: 'browse tile count', selector: '#main a h3 + p', required: 4.5 },
@@ -102,6 +126,36 @@ try {
       await new Promise((resolve) => setTimeout(resolve, 4500));
       currentRoute = target.route;
     }
+
+    /*
+     * Bring the target into view before capturing.
+     *
+     * The screenshot is viewport-only and the rects below are viewport-
+     * relative, so anything past the fold used to fall out of the image and
+     * report SKIP — which does not fail the run. Every target that has ever
+     * been added happened to sit above 900px, so the limitation was invisible
+     * until the first one did not.
+     *
+     * Scrolls only when the element is actually outside the viewport, so
+     * above-the-fold targets are still measured at scroll position 0. That
+     * matters on `/`, where the hero backdrop parallaxes: sampling it at any
+     * other scroll position would measure a composite the visitor never sees
+     * behind that text.
+     */
+    await Runtime.evaluate({
+      expression: `
+        (() => {
+          const el = document.querySelector(${JSON.stringify(target.selector)});
+          if (!el) return;
+          const r = el.getBoundingClientRect();
+          if (r.top >= 0 && r.bottom <= window.innerHeight) return;
+          window.scrollBy({ top: r.top - window.innerHeight * 0.35, behavior: 'instant' });
+        })()
+      `,
+    });
+    // Long enough for a scroll-triggered reveal to finish: the slowest is
+    // DURATION.cinematic at 0.9s, plus stagger.
+    await new Promise((resolve) => setTimeout(resolve, 1400));
 
     const shot = await Page.captureScreenshot({ format: 'png' });
 
