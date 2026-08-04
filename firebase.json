@@ -31,7 +31,7 @@
         "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
       },
       {
-        "source": "/@(equipment|category|countries)/**",
+        "source": "/@(equipment|category|countries|conflicts)/**",
         "headers": [{ "key": "Cache-Control", "value": "no-cache" }]
       },
       {

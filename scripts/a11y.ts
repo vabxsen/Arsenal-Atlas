@@ -23,6 +23,8 @@ const ROUTES = [
   '/equipment/ak-47',
   '/compare?add=ak-47&add=m16-rifle',
   '/countries/USA',
+  '/conflicts',
+  '/conflicts/vietnam-war',
   '/timeline',
   '/saved',
   // Only the guard is reachable here: the audit runs against a build with no

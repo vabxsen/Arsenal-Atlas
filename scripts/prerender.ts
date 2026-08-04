@@ -1,5 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
+import { buildConflictIndex, CONFLICT_PRERENDER_MIN } from '../shared/conflicts.ts';
 import { CATEGORIES } from '../shared/taxonomy.ts';
 import { HERO_MAX_WIDTH, sizedImage, wikimediaSrcSet } from '../shared/images.ts';
 import { normalizeOrigin } from '../shared/site.ts';
@@ -176,11 +177,37 @@ async function main(): Promise<void> {
     ['/browse', 'Browse All Categories | Arsenal Atlas', 'Browse military equipment by category — firearms, artillery, missiles, armour, aircraft, naval vessels, munitions, and soldier systems.'],
     ['/timeline', 'Timeline | Arsenal Atlas', 'A chronological view of military equipment by year of entry into service, from the nineteenth century to the present.'],
     ['/countries', 'Country Explorer | Arsenal Atlas', 'Explore military equipment by country of origin on an interactive world map.'],
+    ['/conflicts', 'Conflicts | Arsenal Atlas', 'Every armed conflict referenced across the collection, from the World Wars to current campaigns — and the equipment that served in each.'],
     ['/compare', 'Compare Equipment | Arsenal Atlas', 'Compare up to four pieces of military equipment side by side, with differences highlighted.'],
     ['/saved', 'Saved | Arsenal Atlas', 'Your saved equipment and recently viewed entries.'],
   ];
   for (const [path, title, description] of staticRoutes) {
     routes.push({ path, title, description });
+  }
+
+  // ── Conflicts ───────────────────────────────────────────────
+  /*
+   * Only conflicts cited by two or more entries get a shell.
+   *
+   * 222 of 405 are cited exactly once, and a generated page for each would be
+   * a heading, one card and nothing else — thin content that dilutes the
+   * sitemap without helping anyone find anything. Singletons stay reachable
+   * through the SPA and set their metadata at runtime via useDocumentMeta;
+   * they just do not get prerendered head tags or a sitemap entry.
+   */
+  for (const conflict of buildConflictIndex(entries)) {
+    if (conflict.count < CONFLICT_PRERENDER_MIN) continue;
+    routes.push({
+      path: `/conflicts/${conflict.slug}`,
+      title: `${conflict.name} — ${conflict.count} Entries | Arsenal Atlas`,
+      description: `${conflict.count} pieces of military equipment recorded as having served in the ${conflict.name}, with full specifications, history, and imagery.`,
+      jsonLd: [
+        breadcrumbs([
+          { name: 'Conflicts', path: '/conflicts' },
+          { name: conflict.name, path: `/conflicts/${conflict.slug}` },
+        ]),
+      ],
+    });
   }
 
   // ── Categories ──────────────────────────────────────────────

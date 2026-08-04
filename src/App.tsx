@@ -21,6 +21,8 @@ const CategoryPage = lazy(() => import('@/features/browse/CategoryPage'));
 const EquipmentPage = lazy(() => import('@/features/equipment/EquipmentPage'));
 const ComparePage = lazy(() => import('@/features/compare/ComparePage'));
 const CountriesPage = lazy(() => import('@/features/countries/CountriesPage'));
+const ConflictsPage = lazy(() => import('@/features/conflicts/ConflictsPage'));
+const ConflictPage = lazy(() => import('@/features/conflicts/ConflictPage'));
 const TimelinePage = lazy(() => import('@/features/timeline/TimelinePage'));
 const SavedPage = lazy(() => import('@/features/user/SavedPage'));
 const NotFoundPage = lazy(() => import('@/features/misc/NotFoundPage'));
@@ -124,6 +126,8 @@ function AnimatedRoutes() {
             <Route path="/category/:slug" element={<CategoryPage />} />
             <Route path="/equipment/:slug" element={<EquipmentPage />} />
             <Route path="/compare" element={<ComparePage />} />
+            <Route path="/conflicts" element={<ConflictsPage />} />
+            <Route path="/conflicts/:slug" element={<ConflictPage />} />
             <Route path="/countries" element={<CountriesPage />} />
             <Route path="/countries/:iso3" element={<CountriesPage />} />
             <Route path="/timeline" element={<TimelinePage />} />

@@ -9,6 +9,7 @@ import { AccountMenu } from '@/features/auth/AccountMenu';
 
 const LINKS = [
   { to: '/browse', label: 'Browse' },
+  { to: '/conflicts', label: 'Conflicts' },
   { to: '/countries', label: 'Countries' },
   { to: '/timeline', label: 'Timeline' },
   { to: '/compare', label: 'Compare' },

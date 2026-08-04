@@ -6,6 +6,7 @@ import { Reveal, RevealGroup, RevealItem } from '@/components/motion/Reveal';
 import { SmartImage } from '@/components/ui/Image';
 import { Button, Chip, Container, SectionHeading, Skeleton } from '@/components/ui/primitives';
 import { useEquipment, useFamilies, useListing } from '@/lib/data';
+import { conflictSlug } from '@shared/conflicts';
 import { HERO_MAX_WIDTH, heroFit, sizedImage } from '@shared/images';
 import { useDocumentMeta } from '@/lib/seo';
 import { getCategory } from '@shared/taxonomy';
@@ -435,14 +436,37 @@ function Prose({ overline, title, body }: { overline: string; title: string; bod
   );
 }
 
+interface RelationBlock {
+  title: string;
+  items: string[];
+  hrefFor?: (name: string) => string;
+}
+
 function RelationLists({ entry }: { entry: Equipment }) {
-  const blocks = [
+  /*
+   * `hrefFor` turns a block from labels into navigation.
+   *
+   * Only Conflicts has one, because it is the only relation with a page to
+   * point at — manufacturers and designers have no index yet, and a chip that
+   * looks like a link and goes nowhere is worse than plain text.
+   *
+   * The href is computed locally via `conflictSlug`, so a detail page never
+   * fetches conflicts.json to render these.
+   */
+  // Annotated before filtering, not after: `.filter()` on the literal drops
+  // the contextual type, and `hrefFor`'s parameter then infers as `any`.
+  const allBlocks: RelationBlock[] = [
     { title: 'Manufacturers', items: entry.manufacturers.map((m) => m.name) },
     { title: 'Designers', items: entry.designers.map((d) => d.name) },
     { title: 'Operators', items: entry.operators.map((o) => o.name) },
-    { title: 'Conflicts', items: entry.conflicts.map((c) => c.name) },
+    {
+      title: 'Conflicts',
+      items: entry.conflicts.map((c) => c.name),
+      hrefFor: (name) => `/conflicts/${conflictSlug(name)}`,
+    },
     { title: 'Variants', items: entry.variants.map((v) => v.name) },
-  ].filter((block) => block.items.length > 0);
+  ];
+  const blocks = allBlocks.filter((block) => block.items.length > 0);
 
   if (blocks.length === 0) return null;
 
@@ -456,11 +480,25 @@ function RelationLists({ entry }: { entry: Equipment }) {
                 {block.title}
               </h3>
               <ul className="mt-4 flex flex-wrap gap-2">
-                {block.items.map((item) => (
-                  <Chip as="li" key={item}>
-                    {item}
-                  </Chip>
-                ))}
+                {block.items.map((item) =>
+                  block.hrefFor ? (
+                    // <a> inside <li>, never wrapping the <li> — axe's
+                    // nested-interactive rule fires on an interactive element
+                    // inside another one.
+                    <li key={item}>
+                      <Link
+                        to={block.hrefFor(item)}
+                        className="inline-flex min-h-11 items-center rounded-full bg-elevated px-3.5 text-caption text-fg-secondary transition-colors hover:bg-raised hover:text-fg"
+                      >
+                        {item}
+                      </Link>
+                    </li>
+                  ) : (
+                    <Chip as="li" key={item}>
+                      {item}
+                    </Chip>
+                  )
+                )}
               </ul>
             </div>
           </RevealItem>

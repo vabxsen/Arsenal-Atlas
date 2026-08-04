@@ -1,4 +1,5 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
+import type { ConflictSummary } from '@shared/conflicts';
 import type { ListingEntry } from '@shared/listing';
 import type { Equipment, Family, SearchIndex } from '@shared/schema';
 
@@ -55,6 +56,23 @@ export function useFamilies(): UseQueryResult<Family[]> {
   return useQuery({
     queryKey: ['families'],
     queryFn: () => getJson<Family[]>('/data/families.json'),
+    ...STATIC,
+  });
+}
+
+/**
+ * The conflict index — 405 campaigns across 234 entries.
+ *
+ * A separate artefact rather than a field on `listing.json`, and only fetched
+ * on the routes that render it. Folding it into the listing would put ~36 KB
+ * on every visitor's first load, including the homepage, for data two pages
+ * use. Equipment detail pages need no fetch at all: they call `conflictSlug`
+ * locally to build each chip's href.
+ */
+export function useConflicts(): UseQueryResult<ConflictSummary[]> {
+  return useQuery({
+    queryKey: ['conflicts'],
+    queryFn: () => getJson<ConflictSummary[]>('/data/conflicts.json'),
     ...STATIC,
   });
 }
