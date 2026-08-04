@@ -1,5 +1,8 @@
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { buildConflictIndex } from '../../shared/conflicts.ts';
+import { headlineSpec, manufacturerLabel, roleLabel } from '../../shared/headline.ts';
+import type { ListingEntry as ListingRow } from '../../shared/listing.ts';
 import { equipmentSchema, familySchema, searchIndexSchema } from '../../shared/schema.ts';
 import type { Equipment, SearchEntry } from '../../shared/schema.ts';
 import { mapLimit } from '../lib/http.ts';
@@ -145,27 +148,73 @@ async function writeStaticExport(entries: Equipment[], families: unknown[]): Pro
     )
   );
 
-  const listing = entries.map((entry) => ({
-    id: entry.id,
-    slug: entry.slug,
-    name: entry.name,
-    category: entry.category,
-    kind: entry.kind,
-    description: entry.description.slice(0, 180),
-    thumb: entry.images.thumb ?? entry.images.hero?.url,
-    hero: entry.images.hero?.url,
-    heroWidth: entry.images.hero?.width,
-    heroHeight: entry.images.hero?.height,
-    countries: entry.countries,
-    countryCodes: entry.countryCodes,
-    serviceStart: entry.serviceStart,
-    popularity: entry.popularity,
-    featured: entry.featured,
-    galleryCount: entry.gallery.length,
-  }));
+  /**
+   * The projection every grid and rail reads.
+   *
+   * manufacturer/role/spec are assigned conditionally rather than set to
+   * `undefined`, so absent fields are omitted from the JSON entirely. That is
+   * worth ~4 KB gzipped across 482 entries, and it matches the client type,
+   * where `exactOptionalPropertyTypes` distinguishes an absent property from
+   * one present and undefined.
+   */
+  const listing = entries.map((entry) => {
+    const row: ListingRow = {
+      id: entry.id,
+      slug: entry.slug,
+      name: entry.name,
+      category: entry.category,
+      kind: entry.kind,
+      description: entry.description.slice(0, 180),
+      thumb: entry.images.thumb ?? entry.images.hero?.url,
+      hero: entry.images.hero?.url,
+      heroWidth: entry.images.hero?.width,
+      heroHeight: entry.images.hero?.height,
+      countries: entry.countries,
+      countryCodes: entry.countryCodes,
+      serviceStart: entry.serviceStart,
+      popularity: entry.popularity,
+      featured: entry.featured,
+      galleryCount: entry.gallery.length,
+    };
+
+    const manufacturer = manufacturerLabel(entry);
+    if (manufacturer) row.manufacturer = manufacturer;
+
+    const role = roleLabel(entry.subcategory);
+    if (role) row.role = role;
+
+    // Role is passed so the figure can be skipped when the role already
+    // states it — see the note in headlineSpec.
+    const spec = headlineSpec(entry, role);
+    if (spec) row.spec = spec;
+
+    return row;
+  });
+
+  const conflicts = buildConflictIndex(entries);
 
   await writeFile(join(outDir, 'listing.json'), JSON.stringify(listing));
   await writeFile(join(outDir, 'families.json'), JSON.stringify(families));
+  await writeFile(join(outDir, 'conflicts.json'), JSON.stringify(conflicts));
+
+  /*
+   * Coverage is reported, not asserted.
+   *
+   * These three fields degrade by design — a card with no manufacturer renders
+   * one fewer line. So a normaliser change that quietly halved coverage would
+   * pass every gate and simply make the product blander. Printing the numbers
+   * is what makes that visible on the next reseed.
+   */
+  const covered = (predicate: (row: ListingRow) => boolean) =>
+    `${listing.filter(predicate).length}/${listing.length}`;
+  console.log(
+    `\nCard metadata coverage:\n` +
+      `  manufacturer  ${covered((r) => r.manufacturer !== undefined)}\n` +
+      `  role          ${covered((r) => r.role !== undefined)}\n` +
+      `  headline spec ${covered((r) => r.spec !== undefined)}\n` +
+      `  conflicts     ${conflicts.length} distinct across ` +
+      `${entries.filter((e) => e.conflicts.length > 0).length} entries`
+  );
 }
 
 async function main(): Promise<void> {

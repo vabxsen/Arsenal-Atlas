@@ -1,4 +1,5 @@
 import { useQuery, type UseQueryResult } from '@tanstack/react-query';
+import type { ListingEntry } from '@shared/listing';
 import type { Equipment, Family, SearchIndex } from '@shared/schema';
 
 /**
@@ -14,24 +15,11 @@ import type { Equipment, Family, SearchIndex } from '@shared/schema';
  * actually opens.
  */
 
-export interface ListingEntry {
-  id: string;
-  slug: string;
-  name: string;
-  category: string;
-  kind: string;
-  description: string;
-  thumb?: string;
-  hero?: string;
-  heroWidth?: number;
-  heroHeight?: number;
-  countries: { name: string; iso3?: string }[];
-  countryCodes: string[];
-  serviceStart?: number;
-  popularity: number;
-  featured: boolean;
-  galleryCount: number;
-}
+/**
+ * Re-exported rather than declared. The seed writes this exact shape, so the
+ * definition lives in shared/ where both sides read it — see shared/listing.ts.
+ */
+export type { ListingEntry };
 
 async function getJson<T>(path: string): Promise<T> {
   const res = await fetch(path);
